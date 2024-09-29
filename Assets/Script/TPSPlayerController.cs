@@ -12,34 +12,45 @@ public class TPSPlayerController : MonoBehaviour
     float moveSpeed;
 
     bool isMoveInput = false;
-    private Vector2 moveInput = new Vector2(0,0);
+    private Vector2 moveInput = new Vector2(0,0); //WASD 입력
     private Vector3 playerLookAt = new Vector3(0,0,0);
+    private Vector3 forwardMove;
+    private Vector3 sideMove;
+    private Vector3 moveDir;
+
+    private bool isCamLocked;
+    public bool IsCamLocked { 
+        get { return isCamLocked; } 
+        set { isCamLocked = value; } 
+    }
 
     Animator anim;
-
 
     void Start()
     {
         anim = playerBody.GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         Move();
     }
 
-    private void Move()
+    private void Move()  
     {
-        moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        isMoveInput = moveInput.magnitude != 0;
-        anim.SetBool("isMove", isMoveInput);
+        moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
+        isMoveInput = moveInput.magnitude != 0; 
+        anim.SetBool("isMove", isMoveInput);  //근데 업데이트 때마다 얘를 호출하는 게 맞나?
         if (isMoveInput) {
-            Vector3 lookForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
-            Vector3 lookRight = new Vector3(cameraRoot.right.x, 0f, cameraRoot.forward.z).normalized;
-            Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
+            forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
+            sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
+            moveDir = forwardMove * moveInput.y + sideMove * moveInput.x;
 
-            playerBody.forward = lookForward;
+            if (isCamLocked) //카메라 LockOn 판단
+                playerBody.forward = forwardMove; // <= 캐릭터가 카메라 방향을 계속 바라보며 움직임
+            else
+                playerBody.forward = moveDir;   //<= 캐릭터가 카메라와 상관없이 움직임
+
             transform.position += moveDir * moveSpeed * Time.deltaTime ;
         }
         playerLookAt = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);

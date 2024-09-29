@@ -5,7 +5,12 @@ using UnityEngine;
 public class TPSCameraController : MonoBehaviour
 {
     [SerializeField]
+    TPSPlayerController playerController;
+    [SerializeField]
     private Transform cameraRoot;
+    [SerializeField]
+    GameObject playerEyeTrack;
+
     [SerializeField, Range(0, 10)]
     float sensitivity = 1f;  // 시야 회전 감도
     [SerializeField, Range(0f, 60f)]
@@ -16,11 +21,13 @@ public class TPSCameraController : MonoBehaviour
     Vector2 mouseMoveDelta = new Vector2(0, 0);  //마우스 이동 입력
     Vector3 camAngle = new Vector3(0, 0, 0);  //카메라 최종 위치
     float camAngleX_adjusted; //카메라 수직 이동 범위 제한
+    bool isCamLocked = false;
 
 
     void Update()
     {
         LookAround();
+        CamLockOn();
     }
 
     private void LookAround()
@@ -44,5 +51,22 @@ public class TPSCameraController : MonoBehaviour
             camAngleX_adjusted,
             camAngle.y + mouseMoveDelta.x * sensitivity,
             camAngle.z);
+    }
+
+
+    private void CamLockOn()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            isCamLocked = !isCamLocked;
+            playerController.IsCamLocked = isCamLocked;
+            Debug.Log("isCamLockOn = " + isCamLocked);
+            if (isCamLocked)
+            {
+                playerEyeTrack.SetActive(true);
+                //Debug.Log()
+                playerEyeTrack.SetActive(false);
+            }
+        }
     }
 }
