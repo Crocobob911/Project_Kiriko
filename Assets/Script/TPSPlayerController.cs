@@ -19,10 +19,6 @@ public class TPSPlayerController : MonoBehaviour
     private Vector3 moveDir;
 
     private bool isCamLocked;
-    public bool IsCamLocked { 
-        get { return isCamLocked; } 
-        set { isCamLocked = value; } 
-    }
 
     Animator anim;
 
@@ -39,15 +35,13 @@ public class TPSPlayerController : MonoBehaviour
     private void Move()  
     {
         moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
-        isMoveInput = moveInput.magnitude != 0; 
+        isMoveInput = moveInput.magnitude != 0;
         anim.SetBool("isMove", isMoveInput);  //근데 업데이트 때마다 얘를 호출하는 게 맞나?
-        anim.SetBool("isCamLocked", IsCamLocked);
 
-        Debug.Log(moveInput);
+        if (isMoveInput) { 
+            anim.SetFloat("moveForward", moveInput.y);
+            anim.SetFloat("moveRight", moveInput.x);
 
-        anim.SetFloat("moveForward", moveInput.y); 
-        anim.SetFloat("moveRight", moveInput.x);
-        if (isMoveInput) {
             forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
             sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
             moveDir = forwardMove * moveInput.y + sideMove * moveInput.x;
@@ -60,5 +54,11 @@ public class TPSPlayerController : MonoBehaviour
             transform.position += moveDir * moveSpeed * Time.deltaTime ;
         }
         playerLookAt = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);
+    }
+
+    public void CamLock(bool isLocked)
+    {
+        isCamLocked = isLocked; 
+        anim.SetBool("isCamLocked", isCamLocked);
     }
 }

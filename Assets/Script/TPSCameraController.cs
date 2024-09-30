@@ -59,8 +59,7 @@ public class TPSCameraController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             isCamLocked = !isCamLocked;
-            playerController.IsCamLocked = isCamLocked;
-            Debug.Log("isCamLockOn = " + isCamLocked);
+            playerController.CamLock(isCamLocked);
             if (isCamLocked)
             {
                 playerEyeTrack.SetActive(true);
@@ -68,5 +67,10 @@ public class TPSCameraController : MonoBehaviour
                 playerEyeTrack.SetActive(false);
             }
         }
+    }
+
+    private bool FindObjectToLookAt()
+    {
+        return false;
     }
 }
