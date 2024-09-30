@@ -41,6 +41,12 @@ public class TPSPlayerController : MonoBehaviour
         moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
         isMoveInput = moveInput.magnitude != 0; 
         anim.SetBool("isMove", isMoveInput);  //근데 업데이트 때마다 얘를 호출하는 게 맞나?
+        anim.SetBool("isCamLocked", IsCamLocked);
+
+        Debug.Log(moveInput);
+
+        anim.SetFloat("moveForward", moveInput.y); 
+        anim.SetFloat("moveRight", moveInput.x);
         if (isMoveInput) {
             forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
             sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
