@@ -1,0 +1,13 @@
+# Blender 4.0.2 MTL File: 'leather_white_1k.blend'
+# www.blender.org
+
+newmtl leather_white
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd textures/leather_white_diff_1k.jpg
+map_Ns textures/leather_white_rough_1k.exr
+map_Bump -bm 1.000000 textures/leather_white_nor_gl_1k.exr
