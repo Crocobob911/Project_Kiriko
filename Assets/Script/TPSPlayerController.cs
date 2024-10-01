@@ -36,10 +36,10 @@ public class TPSPlayerController : MonoBehaviour
     {
         moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
         isMoveInput = moveInput.magnitude != 0;
-        anim.SetBool("isMove", isMoveInput);  //근데 업데이트 때마다 얘를 호출하는 게 맞나?
+        anim.SetBool("isMove", isMoveInput);  //*****근데 업데이트 때마다 얘를 호출하는 게 맞나?
 
         if (isMoveInput) { 
-            anim.SetFloat("moveForward", moveInput.y);
+            anim.SetFloat("moveForward", moveInput.y);  //*****얘도 그렇고?
             anim.SetFloat("moveRight", moveInput.x);
 
             forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;

@@ -4,13 +4,22 @@ using UnityEngine;
 
 public class PlayerEyeTrack : MonoBehaviour
 {
-    /*private void OnTriggerEnter(Collision collision)
-    {
-        WhatAreYouLookingAt(collision);
-    }*/
+    private GameObject foundObject;
 
-    public void WhatAreYouLookingAt(Collision coll)
+    private void OnEnable()
     {
-        Debug.Log("Looking At : " + coll);
+        foundObject = null;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        foundObject = other.gameObject;
+        Debug.Log("Collision : " + other.gameObject);
+    }
+
+
+    public GameObject GetLockObject()
+    {
+        return foundObject; 
     }
 }
