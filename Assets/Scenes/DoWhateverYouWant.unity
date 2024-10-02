@@ -406,9 +406,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerController: {fileID: 2131187795}
   cameraRoot: {fileID: 442407696}
-  sensitivity: 1
-  camAngleMaximum: 0
-  camAngleMinimum: 270
   camLockFindRadius: 5
 --- !u!1001 &570930392
 PrefabInstance:
