@@ -21,15 +21,16 @@ public class TPSCameraController : MonoBehaviour
     Quaternion rotToLockedObj;
 
     RaycastHit[] hits; //시점 방향의 모든 오브젝트를 다 담음
-    ICameraLock cameraLocker;
-    UnLockedCam unLockedCam;
-    LockedCam lockedCam;
+    ICameraRotationCalculator camCal;
+    UnLockedCamCalculator unLockedCam;
+    LockedCamCalculator lockedCam;
 
     private void Start()
     {
-        unLockedCam = new UnLockedCam();
-        lockedCam = new LockedCam();
-        cameraLocker = unLockedCam;
+        unLockedCam = new UnLockedCamCalculator(cameraRoot);
+        lockedCam = new LockedCamCalculator(playerController.gameObject);
+        camCal = unLockedCam;
+        Debug.Log(camCal);
     }
 
     void Update()
@@ -46,11 +47,7 @@ public class TPSCameraController : MonoBehaviour
         mouseMoveDelta.x = Input.GetAxis("Mouse X");
         mouseMoveDelta.y = Input.GetAxis("Mouse Y");
 
-        //카메라 위치값 선계산
-        camAngle = cameraRoot.rotation.eulerAngles;
-        cameraRoot.rotation = cameraLocker.SetCameraRotation(
-            camAngle, mouseMoveDelta, lockedObj.transform.position, 
-            playerController.gameObject.transform.position);
+        cameraRoot.rotation = camCal.SetCameraRotation(mouseMoveDelta);
     }
 
     private void TriggerCamLock()  //1 누르면 Cam lock 트리거
@@ -60,20 +57,22 @@ public class TPSCameraController : MonoBehaviour
             if (isCamLocked)  //Cam Lock On 해제
             {
                 isCamLocked = false;
-                cameraLocker = unLockedCam;
-                Debug.Log("Cam Lock Off : " + lockedObj);
+                camCal.SetLockedObj(null);
+                camCal = unLockedCam;
+
+                
                 playerController.CamLock(isCamLocked);
             }
             else if (lockedObj = FindObjectToLock()) //Enemy를 성공적으로 찾음
             {
                 isCamLocked = true;
-                cameraLocker = lockedCam;
-                Debug.Log("Cam Lock : " + lockedObj);
+                camCal = lockedCam;
+                camCal.SetLockedObj(lockedObj);
                 playerController.CamLock(isCamLocked);
             }
             else //Enemy 못찾음
             {
-                cameraLocker = unLockedCam;
+                camCal = unLockedCam;
                 Debug.Log("No Enemy To Lock On");
             }
         }
@@ -95,34 +94,51 @@ public class TPSCameraController : MonoBehaviour
 }
 
 // 록온 or 록오프 시, 카메라 방향 값을 계산해줄 서로 다른 객체
-interface ICameraLock
+interface ICameraRotationCalculator
 {
-    abstract public Quaternion SetCameraRotation(
-        Vector3 camAngle, Vector2 mouseMoveDelta, 
-        Vector3 lockedObjPos, Vector3 playerObjPos);
+    abstract public Quaternion SetCameraRotation(Vector2 mouseMoveDelta);
+    abstract public void SetLockedObj(GameObject obj);
 }
 
-public class LockedCam : ICameraLock
+public class LockedCamCalculator : ICameraRotationCalculator
 {
-    public Quaternion SetCameraRotation(
-        Vector3 camAngle, Vector2 mouseMoveDelta, 
-        Vector3 lockedObjPos, Vector3 playerObjPos)
+    private GameObject lockedObj;
+    private GameObject playerObj;
+
+    public LockedCamCalculator(GameObject player)
     {
-        return Quaternion.LookRotation(lockedObjPos - playerObjPos);
+        playerObj = player;
+    }
+
+    public void SetLockedObj(GameObject obj)
+    {
+        lockedObj = obj;
+    }
+
+    public Quaternion SetCameraRotation(Vector2 mouseMoveDelta)
+    {
+        return Quaternion.LookRotation(lockedObj.transform.position - playerObj.transform.position);
     }
 }
 
-public class UnLockedCam : ICameraLock
+public class UnLockedCamCalculator : ICameraRotationCalculator
 {
     [SerializeField, Range(0, 10)] float sensitivity = 1f;  // 시야 회전 감도
     [SerializeField, Range(0f, 60f)] float camAngleMaximum = 40f;  //카메라가 어디까지 올라가나. 값이 60 이하일 것!
     [SerializeField, Range(270f, 361f)] float camAngleMinimum = 300f;  //카메라가 어디까지 내려가나.
     private float camAngleX_adjusted; //카메라 수직 이동 범위 제한
 
-    public Quaternion SetCameraRotation(
-        Vector3 camAngle, Vector2 mouseMoveDelta, 
-        Vector3 lockedObjPos, Vector3 playerObjPos)
+    private Transform cameraRoot;
+    private Vector3 camAngle;
+
+    public UnLockedCamCalculator(Transform root)
     {
+        cameraRoot = root;
+    }
+
+    public Quaternion SetCameraRotation(Vector2 mouseMoveDelta)
+    {
+        camAngle = cameraRoot.rotation.eulerAngles;         //카메라 위치값 선계산
         camAngleX_adjusted = camAngle.x - mouseMoveDelta.y * sensitivity;
         if (camAngleX_adjusted < 180f) //카메라가 수평선 위
         {
@@ -139,4 +155,5 @@ public class UnLockedCam : ICameraLock
             camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
     }
 
+    public void SetLockedObj(GameObject obj) { }  //아아 불편한데
 }
