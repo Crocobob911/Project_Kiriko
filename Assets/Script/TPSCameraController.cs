@@ -14,7 +14,8 @@ public class TPSCameraController : MonoBehaviour
     bool isCamLocked = false;
 
     readonly float camLockFindDistance = 100f;
-    [SerializeField, Header("Lock On 인식 너비, *부채꼴 아님.")]     float camLockFindRadius = 5f;  //정확하게 부채꼴 범위로 찾을 순 없을까?
+    [SerializeField, Header("Lock On 인식 너비, *부채꼴 아님.")]     
+    float camLockFindRadius = 5f;  //정확하게 부채꼴 범위로 찾을 순 없을까?
 
     GameObject lockedObj; //록온한 오브젝트
     Quaternion rotToLockedObj;
@@ -33,7 +34,8 @@ public class TPSCameraController : MonoBehaviour
 
     void Update()
     {
-        Debug.DrawRay(cameraRoot.position, new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z));
+        Debug.DrawRay(cameraRoot.position, 
+            new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z));
         TriggerCamLock();
         ChangeCameraRotation();
     }
@@ -47,7 +49,8 @@ public class TPSCameraController : MonoBehaviour
         //카메라 위치값 선계산
         camAngle = cameraRoot.rotation.eulerAngles;
         cameraRoot.rotation = cameraLocker.SetCameraRotation(
-            camAngle, mouseMoveDelta, lockedObj.transform.position, playerController.gameObject.transform.position);
+            camAngle, mouseMoveDelta, lockedObj.transform.position, 
+            playerController.gameObject.transform.position);
     }
 
     private void TriggerCamLock()  //1 누르면 Cam lock 트리거
@@ -79,7 +82,8 @@ public class TPSCameraController : MonoBehaviour
     private GameObject FindObjectToLock()  //RaySphere를 쏴서, 바라보고 있는 방향에서 Enemy를 찾는
     {
         hits = Physics.SphereCastAll(cameraRoot.position, camLockFindRadius, 
-            new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z), camLockFindDistance);
+            new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z), 
+                camLockFindDistance);
             foreach (RaycastHit hit in hits) { 
             if(hit.transform.GetComponent<Enemy>()) //이 중에서 Enemy가 붙은 오브젝트 하나만 취한다. 추후 일반화가 필요할까? Enemy가 아닌 다른 클래스를 찾기.
             {
@@ -94,13 +98,15 @@ public class TPSCameraController : MonoBehaviour
 interface ICameraLock
 {
     abstract public Quaternion SetCameraRotation(
-        Vector3 camAngle, Vector2 mouseMoveDelta, Vector3 lockedObjPos, Vector3 playerObjPos);
+        Vector3 camAngle, Vector2 mouseMoveDelta, 
+        Vector3 lockedObjPos, Vector3 playerObjPos);
 }
 
 public class LockedCam : ICameraLock
 {
     public Quaternion SetCameraRotation(
-        Vector3 camAngle, Vector2 mouseMoveDelta, Vector3 lockedObjPos, Vector3 playerObjPos)
+        Vector3 camAngle, Vector2 mouseMoveDelta, 
+        Vector3 lockedObjPos, Vector3 playerObjPos)
     {
         return Quaternion.LookRotation(lockedObjPos - playerObjPos);
     }
@@ -114,19 +120,23 @@ public class UnLockedCam : ICameraLock
     private float camAngleX_adjusted; //카메라 수직 이동 범위 제한
 
     public Quaternion SetCameraRotation(
-        Vector3 camAngle, Vector2 mouseMoveDelta, Vector3 lockedObjPos, Vector3 playerObjPos)
+        Vector3 camAngle, Vector2 mouseMoveDelta, 
+        Vector3 lockedObjPos, Vector3 playerObjPos)
     {
         camAngleX_adjusted = camAngle.x - mouseMoveDelta.y * sensitivity;
         if (camAngleX_adjusted < 180f) //카메라가 수평선 위
         {
-            camAngleX_adjusted = Mathf.Clamp(camAngleX_adjusted, -1f, camAngleMaximum);
+            camAngleX_adjusted = 
+            Mathf.Clamp(camAngleX_adjusted, -1f, camAngleMaximum);
         }
         else //카메라가 수평선 아래
         {
-            camAngleX_adjusted = Mathf.Clamp(camAngleX_adjusted, camAngleMinimum, 361f);
+            camAngleX_adjusted = 
+            Mathf.Clamp(camAngleX_adjusted, camAngleMinimum, 361f);
         }
 
-        return Quaternion.Euler(camAngleX_adjusted, camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
+        return Quaternion.Euler(camAngleX_adjusted, 
+            camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
     }
 
 }
