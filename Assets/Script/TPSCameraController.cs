@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class TPSCameraController : MonoBehaviour
 {
-    [SerializeField] private PlayMoveController playerController;
+    [SerializeField] private PlayerMoveController playerController;
     [SerializeField] private Transform cameraRoot;
 
     private Vector2 mouseMoveDelta = new(0, 0);

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayMoveController : MonoBehaviour {
+public class PlayerMoveController : MonoBehaviour {
     private static readonly int IsMove = Animator.StringToHash("isMove");
     private static readonly int MoveForward = Animator.StringToHash("moveForward");
     private static readonly int MoveRight = Animator.StringToHash("moveRight");
