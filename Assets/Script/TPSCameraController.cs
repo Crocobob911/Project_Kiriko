@@ -1,48 +1,139 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using OpenCover.Framework.Model;
 using UnityEngine;
 
 public class TPSCameraController : MonoBehaviour
 {
-    [SerializeField]
-    private Transform cameraRoot;
-    [SerializeField, Range(0, 10)]
-    float sensitivity = 1f;  // 시야 회전 감도
+    [SerializeField] private PlayMoveController playerController;
+    [SerializeField] private Transform cameraRoot;
 
-    Vector2 mouseMoveDelta = new Vector2(0, 0);  //마우스 이동 입력
-    float camAngleX_adjusted; //카메라 수직 이동 범위 제한
-    Vector3 camAngle = new Vector3(0, 0, 0);  //카메라 최종 위치
+    private Vector2 mouseMoveDelta = new(0, 0);
+    private bool isCamLocked;
 
-    void Start()
+    private float camLockFindDistance = 100f;
+
+    [SerializeField, Header("Lock On find radius")]
+    private float camLockFindRadius = 5f;
+
+
+    private GameObject lockedObj;
+
+    private RaycastHit[] hits;
+    private ICameraRotationCalculator camCal;
+    private UnLockedCamCalculator unLockedCam;
+    private LockedCamCalculator lockedCam;
+
+    private void Start()
     {
+        unLockedCam = new UnLockedCamCalculator(cameraRoot);
+        lockedCam = new LockedCamCalculator(playerController.gameObject);
+        camCal = unLockedCam;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        LookAround();
+        Debug.DrawRay(cameraRoot.position,
+            new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z));
+        TriggerCamLock();
+        ChangeCameraRotation();
     }
 
-    private void LookAround()
+    private void ChangeCameraRotation()
     {
         mouseMoveDelta.x = Input.GetAxis("Mouse X");
         mouseMoveDelta.y = Input.GetAxis("Mouse Y");
 
-        camAngle = cameraRoot.rotation.eulerAngles;
+        cameraRoot.rotation = camCal.SetCameraRotation(mouseMoveDelta);
+    }
 
-        camAngleX_adjusted = camAngle.x - mouseMoveDelta.y * sensitivity;
-        if (camAngleX_adjusted < 180f)
+    // ReSharper disable Unity.PerformanceAnalysis
+    private void TriggerCamLock()
+    {
+        if (!Input.GetKeyDown(KeyCode.Alpha1)) return;
+        if (isCamLocked)
         {
-            camAngleX_adjusted = Mathf.Clamp(camAngleX_adjusted, -1f, 30f);
+            isCamLocked = false;
+            camCal.SetLockedObj(null);
+            camCal = unLockedCam;
+
+            playerController.CamLock(isCamLocked);
+        }
+        // ReSharper disable once AssignmentInConditionalExpression
+        else if (lockedObj = FindObjectToLock())
+        {
+            isCamLocked = true;
+            camCal = lockedCam;
+            camCal.SetLockedObj(lockedObj);
+            playerController.CamLock(isCamLocked);
         }
         else
         {
-            camAngleX_adjusted = Mathf.Clamp(camAngleX_adjusted, 225f, 361f);
+            camCal = unLockedCam;
+            Debug.Log("No Enemy To Lock On");
         }
-
-        cameraRoot.rotation = Quaternion.Euler(
-            camAngleX_adjusted,
-            camAngle.y + mouseMoveDelta.x * sensitivity,
-            camAngle.z);
     }
+
+    private GameObject FindObjectToLock()
+    {
+        // ReSharper disable once Unity.PreferNonAllocApi
+        hits = Physics.SphereCastAll(cameraRoot.position, camLockFindRadius,
+            new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z),
+            camLockFindDistance);
+        return (from hit in hits
+                where hit.transform.GetComponent<Enemy>()
+                select hit.transform.GetComponent<Enemy>().transform.gameObject).FirstOrDefault();
+    }
+}
+
+internal interface ICameraRotationCalculator {
+    public Quaternion SetCameraRotation(Vector2 mouseMoveDelta);
+    public void SetLockedObj(GameObject obj);
+}
+
+public class LockedCamCalculator : ICameraRotationCalculator {
+    private GameObject lockedObj;
+    private GameObject playerObj;
+
+    public LockedCamCalculator(GameObject player) {
+        playerObj = player;
+    }
+
+    public void SetLockedObj(GameObject obj) {
+        lockedObj = obj;
+    }
+
+    public Quaternion SetCameraRotation(Vector2 mouseMoveDelta) {
+        return Quaternion.LookRotation(lockedObj.transform.position - playerObj.transform.position);
+    }
+}
+
+public class UnLockedCamCalculator : ICameraRotationCalculator {
+    [SerializeField, Range(0, 10)] float sensitivity = 1f;
+    [SerializeField, Range(0f, 60f)] float camAngleMaximum = 40f;
+    [SerializeField, Range(270f, 361f)] float camAngleMinimum = 300f;
+    private float camAngleXadjusted;
+
+    private Transform cameraRoot;
+    private Vector3 camAngle;
+    
+    public UnLockedCamCalculator(Transform root) {
+        cameraRoot = root;
+    }
+    
+    /// Get 'how much the mouse moved' and return 'how much the camera should move'
+    /// It is executed when the Cam Locked off
+    public Quaternion SetCameraRotation(Vector2 mouseMoveDelta) {
+        camAngle = cameraRoot.rotation.eulerAngles;
+        camAngleXadjusted = camAngle.x - mouseMoveDelta.y * sensitivity;
+        camAngleXadjusted = 
+            camAngleXadjusted < 180f ? Mathf.Clamp(camAngleXadjusted, -1f, camAngleMaximum) 
+                : Mathf.Clamp(camAngleXadjusted, camAngleMinimum, 361f);
+
+        return Quaternion.Euler(camAngleXadjusted, 
+            camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
+    }
+    
+    public void SetLockedObj(GameObject obj) { }
 }
