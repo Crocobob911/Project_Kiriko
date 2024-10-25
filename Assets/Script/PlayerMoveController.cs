@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Script
 {
-    public class PlayerMoveController : MonoBehaviour {
+    public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
         private static readonly int IsMove = Animator.StringToHash("isMove");
         private static readonly int MoveForward = Animator.StringToHash("moveForward");
         private static readonly int MoveRight = Animator.StringToHash("moveRight");
@@ -29,6 +29,10 @@ namespace Script
             cameraRoot = gameObject.transform.GetChild(0).GetComponent<Transform>();
             playerBody = gameObject.transform.GetChild(1).GetComponent<Transform>();
             anim = playerBody.GetComponent<Animator>();
+        }
+        
+        private void Start() {
+            ValueModifierForDebug.Instance.AddThisSubscriber(this);
         }
 
         private void Update() {
@@ -77,6 +81,10 @@ namespace Script
             //---should implement Animation Change
         
         }
-    
+        
+        public void ValueModified_Debug() {
+            moveSpeed = ValueModifierForDebug.Instance.MoveSpeed;
+            runSpeed = ValueModifierForDebug.Instance.RunSpeed;
+        }
     }
 }

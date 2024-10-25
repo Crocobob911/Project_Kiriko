@@ -708,7 +708,7 @@ GameObject:
   - component: {fileID: 1993142194}
   - component: {fileID: 1993142195}
   m_Layer: 0
-  m_Name: _Controller
+  m_Name: ValueModifier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -743,7 +743,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   runSpeed: 3
-  zoomSpeed: 5
+  zoomSpeed: {x: -80, y: 640}
   camSensitivity: 1
   camAngleMaximum: 40
   camAngleMinimum: 300

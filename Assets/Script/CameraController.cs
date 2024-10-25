@@ -27,6 +27,9 @@ namespace Script {
         private void Awake() {
             cameraRoot = gameObject.transform;
             playerController = cameraRoot.transform.GetComponentInParent<PlayerMoveController>();
+        }
+
+        private void Start() {
             unLockedCam = new UnLockedCamCalculator(cameraRoot);
             lockedCam = new LockedCamCalculator(playerController.gameObject);
             camCal = unLockedCam;
@@ -102,14 +105,14 @@ namespace Script {
         }
     }
 
-    public class UnLockedCamCalculator : ICameraRotationCalculator {
+    public class UnLockedCamCalculator : ICameraRotationCalculator, IValueModifierObserver {
         float sensitivity = 1f;
         float camAngleMaximum = 40f;
         float camAngleMinimum = 300f;
         private float camAngleXadjusted;
         private readonly Transform cameraRoot;
         private Vector3 camAngle;
-    
+        
         public UnLockedCamCalculator(Transform root) {
             cameraRoot = root;
         }
@@ -127,6 +130,12 @@ namespace Script {
                 camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
         }
     
+        public void ValueModified_Debug() {
+            sensitivity = ValueModifierForDebug.Instance.CamSensitivity;
+            camAngleMaximum = ValueModifierForDebug.Instance.CamAngleMaximum;
+            camAngleMinimum = ValueModifierForDebug.Instance.CamAngleMinimum;
+        }
+        
         public void SetLockedObj(GameObject obj) { }
     }
 }
