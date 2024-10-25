@@ -405,8 +405,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00d765e456a2dec478c1b640dcb254df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerController: {fileID: 2131187795}
-  cameraRoot: {fileID: 442407696}
   camLockFindRadius: 5
 --- !u!114 &442407698
 MonoBehaviour:
@@ -420,7 +418,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8730a811dd479474ca434d221fc07ab4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraObj: {fileID: 963194225}
 --- !u!1001 &570930392
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -700,6 +697,56 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6048376750277521002, guid: 459f79a004eb51144840e79b6950c697, type: 3}
   m_PrefabInstance: {fileID: 570930392}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1993142192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1993142194}
+  - component: {fileID: 1993142195}
+  m_Layer: 0
+  m_Name: _Controller
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1993142194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993142192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -19.403488, y: -7.491783, z: 5.450745}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1993142195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993142192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f48ed7bdbeaa51408181a556cc8e437, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  runSpeed: 3
+  zoomSpeed: 5
+  camSensitivity: 1
+  camAngleMaximum: 40
+  camAngleMinimum: 300
 --- !u!1001 &2029367135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -788,10 +835,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98060703f2bcd8243b2b7ec66f385e39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerBody: {fileID: 1228852087}
-  cameraRoot: {fileID: 442407696}
-  moveSpeed: 5
-  runSpeed: 3
 --- !u!4 &2131187796
 Transform:
   m_ObjectHideFlags: 0
@@ -863,6 +906,7 @@ Rigidbody:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1993142194}
   - {fileID: 705507995}
   - {fileID: 2131187796}
   - {fileID: 223248989}
