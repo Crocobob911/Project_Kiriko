@@ -32,7 +32,7 @@ namespace Script
         }
         
         private void Start() {
-            ValueModifierForDebug.Instance.AddThisSubscriber(this);
+            ValueModifier.Instance.AddSubscriber(this);
         }
 
         private void Update() {
@@ -81,10 +81,11 @@ namespace Script
             //---should implement Animation Change
         
         }
-        
-        public void ValueModified_Debug() {
-            moveSpeed = ValueModifierForDebug.Instance.MoveSpeed;
-            runSpeed = ValueModifierForDebug.Instance.RunSpeed;
+        #if UNITY_EDITOR
+        public void ValueModifierUpdated() {
+            moveSpeed = ValueModifier.Instance.MoveSpeed;
+            runSpeed = ValueModifier.Instance.RunSpeed;
         }
+        #endif
     }
 }

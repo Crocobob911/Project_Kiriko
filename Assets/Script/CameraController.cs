@@ -129,12 +129,13 @@ namespace Script {
             return Quaternion.Euler(camAngleXadjusted, 
                 camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
         }
-    
-        public void ValueModified_Debug() {
-            sensitivity = ValueModifierForDebug.Instance.CamSensitivity;
-            camAngleMaximum = ValueModifierForDebug.Instance.CamAngleMaximum;
-            camAngleMinimum = ValueModifierForDebug.Instance.CamAngleMinimum;
+        #if UNITY_EDITOR
+        public void ValueModifierUpdated() {
+            sensitivity = ValueModifier.Instance.CamSensitivity;
+            camAngleMaximum = ValueModifier.Instance.CamAngleMaximum;
+            camAngleMinimum = ValueModifier.Instance.CamAngleMinimum;
         }
+        #endif
         
         public void SetLockedObj(GameObject obj) { }
     }

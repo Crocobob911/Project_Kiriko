@@ -16,7 +16,7 @@ namespace Script {
         }
         
         private void Start() {
-            ValueModifierForDebug.Instance.AddThisSubscriber(this);
+            ValueModifier.Instance.AddSubscriber(this);
         }
 
         private void Update() {
@@ -36,8 +36,10 @@ namespace Script {
             cameraObj.transform.localPosition = position;
         }
         
-        public void ValueModified_Debug() {
-            zoomSpeed = ValueModifierForDebug.Instance.ZoomSpeed;
+        #if UNITY_EDITOR
+        public void ValueModifierUpdated() {
+            zoomSpeed = ValueModifier.Instance.ZoomSpeed;
         }
+        #endif
     }
 }
