@@ -20,6 +20,7 @@ namespace Script {
             }
         }
         
+        
         [Header("Player Move Speed")]
         [SerializeField] private float moveSpeed = 5f; public float MoveSpeed {get => moveSpeed;}
         [SerializeField] private float runSpeed = 3f; public float RunSpeed {get => runSpeed;}
@@ -27,13 +28,13 @@ namespace Script {
 
 
         [Space(5f), Header("Camera")]
-        [SerializeField] private Vector2 zoomSpeed = new (-80f, 640f); public Vector2 ZoomSpeed { get => zoomSpeed;}
+        [SerializeField] private float zoomSpeed = 8f; public float ZoomSpeed { get => zoomSpeed;}
         [SerializeField] private float camSensitivity = 1f; public float CamSensitivity {get => camSensitivity;}
         [SerializeField] float camAngleMaximum = 40f; public float CamAngleMaximum {get => camAngleMaximum;}
         [SerializeField] float camAngleMinimum = 300f; public float CamAngleMinimum {get => camAngleMinimum;}
-
         
-
+        
+        
         private void Awake() {
             if (_instance is null) {
                 _instance = this;
@@ -50,7 +51,6 @@ namespace Script {
         public void AddSubscriber(IValueModifierObserver observer) {
             observers.Add(observer);
         }
-
         public void ValueUpdateApply() {
             foreach (var ob in observers) {
                 ob.ValueModifierUpdated();

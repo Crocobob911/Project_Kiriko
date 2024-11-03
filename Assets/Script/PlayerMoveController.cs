@@ -4,13 +4,17 @@ using UnityEngine;
 namespace Script
 {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
-        private static readonly int IsMove = Animator.StringToHash("isMove");
-        private static readonly int MoveForward = Animator.StringToHash("moveForward");
-        private static readonly int MoveRight = Animator.StringToHash("moveRight");
-        private static readonly int IsCamLocked = Animator.StringToHash("isCamLocked");
+        // Animator parameters
+        // Those values are in hash table.
+        // So when the values are called, we need to "search" them.
+        // To reduce that process, we get speed advantage.
+        private static readonly int AnimIsMove = Animator.StringToHash("isMove");
+        private static readonly int AnimMoveForward = Animator.StringToHash("moveForward");
+        private static readonly int AnimMoveRight = Animator.StringToHash("moveRight");
+        private static readonly int AnimIsCamLocked = Animator.StringToHash("isCamLocked");
         
         private float moveSpeed = 5f;
-        private float runSpeed = 3f;
+        private float sprintSpeed = 3f;
         private bool isRun;
         
         private Animator anim;
@@ -43,11 +47,11 @@ namespace Script
         private void Move() {
             moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
             isMoveInput = moveInput.magnitude != 0;
-            anim.SetBool(IsMove, isMoveInput);
+            anim.SetBool(AnimIsMove, isMoveInput);
             if (!isMoveInput) return;
         
-            anim.SetFloat(MoveForward, moveInput.y);
-            anim.SetFloat(MoveRight, moveInput.x);
+            anim.SetFloat(AnimMoveForward, moveInput.y);
+            anim.SetFloat(AnimMoveRight, moveInput.x);
 
             forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
             sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
@@ -63,7 +67,7 @@ namespace Script
         public void CamLock(bool isLocked)
         {
             isCamLocked = isLocked;
-            anim.SetBool(IsCamLocked, isCamLocked);
+            anim.SetBool(AnimIsCamLocked, isCamLocked);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -74,7 +78,7 @@ namespace Script
             //when Left shift keyDown, or keyUp -> trigger run
         
             isRun = !isRun;
-            moveSpeed = isRun ? moveSpeed + runSpeed : moveSpeed - runSpeed;
+            moveSpeed = isRun ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
             //Debug.Log("RunTriggerd : " + isRun);
         
             //---should implement Stamina reduce
@@ -84,7 +88,7 @@ namespace Script
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
-            runSpeed = ValueModifier.Instance.RunSpeed;
+            sprintSpeed = ValueModifier.Instance.RunSpeed;
         }
         #endif
     }
