@@ -4,14 +4,16 @@ using UnityEngine;
 namespace Script
 {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
-        private static readonly int IsMove = Animator.StringToHash("isMove");
-        private static readonly int MoveForward = Animator.StringToHash("moveForward");
-        private static readonly int MoveRight = Animator.StringToHash("moveRight");
-        private static readonly int IsCamLocked = Animator.StringToHash("isCamLocked");
+        // 애니메이터 매개변수들
+        // Animator.StringToHash()로 그 값들을 미리 가져와 갖고있음으로써, 연산 줄여줌.
+        private static readonly int AnimIsMove = Animator.StringToHash("isMove");
+        private static readonly int AnimMoveForward = Animator.StringToHash("moveForward");
+        private static readonly int AnimMoveRight = Animator.StringToHash("moveRight");
+        private static readonly int AnimIsCamLocked = Animator.StringToHash("isCamLocked");
         
         private float moveSpeed = 5f;
-        private float runSpeed = 3f;
-        private bool isRun;
+        private float sprintSpeed = 3f;
+        private bool isSprint;
         
         private Animator anim;
         private Transform playerBody;
@@ -36,25 +38,24 @@ namespace Script
         }
 
         private void Update() {
-            RunTrigger();
+            SprintTrigger();
             Move();
         }
     
         private void Move() {
             moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
             isMoveInput = moveInput.magnitude != 0;
-            anim.SetBool(IsMove, isMoveInput);
+            anim.SetBool(AnimIsMove, isMoveInput);
             if (!isMoveInput) return;
         
-            anim.SetFloat(MoveForward, moveInput.y);
-            anim.SetFloat(MoveRight, moveInput.x);
+            anim.SetFloat(AnimMoveForward, moveInput.y);
+            anim.SetFloat(AnimMoveRight, moveInput.x);
 
             forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
             sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
             moveDir = (forwardMove * moveInput.y + sideMove * moveInput.x).normalized;
             var diagonalMoveCorrectedSpeed = Mathf.Min(moveDir.magnitude, 1f) * moveSpeed; 
-        
-            //no fast diagonal
+            //대각선 빨라짐 제한
             
             playerBody.forward = isCamLocked ? forwardMove : moveDir;
             transform.position += moveDir * (diagonalMoveCorrectedSpeed * Time.deltaTime);
@@ -63,28 +64,27 @@ namespace Script
         public void CamLock(bool isLocked)
         {
             isCamLocked = isLocked;
-            anim.SetBool(IsCamLocked, isCamLocked);
+            anim.SetBool(AnimIsCamLocked, isCamLocked);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private void RunTrigger()
+        private void SprintTrigger()
         {
-            if (!isMoveInput) return;        //only when walking, can trigger run.
+            if (!isMoveInput) return;        //걷고있을 때에만 달리기 트리거
             if(!Input.GetKeyDown(KeyCode.LeftShift) && !Input.GetKeyUp(KeyCode.LeftShift))  return;
-            //when Left shift keyDown, or keyUp -> trigger run
+            // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         
-            isRun = !isRun;
-            moveSpeed = isRun ? moveSpeed + runSpeed : moveSpeed - runSpeed;
-            //Debug.Log("RunTriggerd : " + isRun);
+            isSprint = !isSprint;
+            moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
         
-            //---should implement Stamina reduce
-            //---should implement Animation Change
+            //---나중에 스태미너 감소 구현해야함
+            //---나중에 달리기 애니메이션 넣어야함
         
         }
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
-            runSpeed = ValueModifier.Instance.RunSpeed;
+            sprintSpeed = ValueModifier.Instance.SprintSpeed;
         }
         #endif
     }

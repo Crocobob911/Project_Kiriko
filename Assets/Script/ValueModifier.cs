@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Script {
     public class ValueModifier : MonoBehaviour {
@@ -20,20 +21,26 @@ namespace Script {
             }
         }
         
-        [Header("Player Move Speed")]
+        
+        // 근데 이 쪼끄만 클래스 하나에서
+        // 프로젝트 내의 모든 가변적인 변수들을 가지고 있다는 게 말이 되나?
+        // 각 객체에서 가지고 와야하지 않을까?
+        
+        [Header("플레이어 움직임")]
         [SerializeField] private float moveSpeed = 5f; public float MoveSpeed {get => moveSpeed;}
-        [SerializeField] private float runSpeed = 3f; public float RunSpeed {get => runSpeed;}
+        [SerializeField] private float sprintSpeed = 3f; public float SprintSpeed {get => sprintSpeed;}
 
 
 
-        [Space(5f), Header("Camera")]
-        [SerializeField] private Vector2 zoomSpeed = new (-80f, 640f); public Vector2 ZoomSpeed { get => zoomSpeed;}
+        [Space(5f), Header("카메라")]
+        [SerializeField] private float zoomSpeed = 8f; public float ZoomSpeed { get => zoomSpeed;}
         [SerializeField] private float camSensitivity = 1f; public float CamSensitivity {get => camSensitivity;}
         [SerializeField] float camAngleMaximum = 40f; public float CamAngleMaximum {get => camAngleMaximum;}
         [SerializeField] float camAngleMinimum = 300f; public float CamAngleMinimum {get => camAngleMinimum;}
-
         
-
+        //여기에 zoomMax, zoomMin 들어가야 하는데....이 방식이 맞나? 이게 맞음?
+        
+        
         private void Awake() {
             if (_instance is null) {
                 _instance = this;
@@ -50,7 +57,6 @@ namespace Script {
         public void AddSubscriber(IValueModifierObserver observer) {
             observers.Add(observer);
         }
-
         public void ValueUpdateApply() {
             foreach (var ob in observers) {
                 ob.ValueModifierUpdated();
