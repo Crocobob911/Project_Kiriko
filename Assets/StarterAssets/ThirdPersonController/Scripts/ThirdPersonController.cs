@@ -195,7 +195,6 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
-            // if there is an input and camera position is not fixed
             // 카메라가 움직일 수 있고, 마우스 인풋도 있어준다면
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {

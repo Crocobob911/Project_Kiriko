@@ -4,10 +4,8 @@ using UnityEngine;
 namespace Script
 {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
-        // Animator parameters
-        // Those values are in hash table.
-        // So when the values are called, we need to "search" them.
-        // To reduce that process, we get speed advantage.
+        // 애니메이터 매개변수들
+        // Animator.StringToHash()로 그 값들을 미리 가져와 갖고있음으로써, 연산 줄여줌.
         private static readonly int AnimIsMove = Animator.StringToHash("isMove");
         private static readonly int AnimMoveForward = Animator.StringToHash("moveForward");
         private static readonly int AnimMoveRight = Animator.StringToHash("moveRight");
@@ -15,7 +13,7 @@ namespace Script
         
         private float moveSpeed = 5f;
         private float sprintSpeed = 3f;
-        private bool isRun;
+        private bool isSprint;
         
         private Animator anim;
         private Transform playerBody;
@@ -40,7 +38,7 @@ namespace Script
         }
 
         private void Update() {
-            RunTrigger();
+            SprintTrigger();
             Move();
         }
     
@@ -57,8 +55,7 @@ namespace Script
             sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
             moveDir = (forwardMove * moveInput.y + sideMove * moveInput.x).normalized;
             var diagonalMoveCorrectedSpeed = Mathf.Min(moveDir.magnitude, 1f) * moveSpeed; 
-        
-            //no fast diagonal
+            //대각선 빨라짐 제한
             
             playerBody.forward = isCamLocked ? forwardMove : moveDir;
             transform.position += moveDir * (diagonalMoveCorrectedSpeed * Time.deltaTime);
@@ -71,24 +68,23 @@ namespace Script
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private void RunTrigger()
+        private void SprintTrigger()
         {
-            if (!isMoveInput) return;        //only when walking, can trigger run.
+            if (!isMoveInput) return;        //걷고있을 때에만 달리기 트리거
             if(!Input.GetKeyDown(KeyCode.LeftShift) && !Input.GetKeyUp(KeyCode.LeftShift))  return;
-            //when Left shift keyDown, or keyUp -> trigger run
+            // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         
-            isRun = !isRun;
-            moveSpeed = isRun ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
-            //Debug.Log("RunTriggerd : " + isRun);
+            isSprint = !isSprint;
+            moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
         
-            //---should implement Stamina reduce
-            //---should implement Animation Change
+            //---나중에 스태미너 감소 구현해야함
+            //---나중에 달리기 애니메이션 넣어야함
         
         }
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
-            sprintSpeed = ValueModifier.Instance.RunSpeed;
+            sprintSpeed = ValueModifier.Instance.SprintSpeed;
         }
         #endif
     }
