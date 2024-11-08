@@ -1,4 +1,4 @@
-using System;
+using UnityEngine.InputSystem;
 using UnityEngine;
 
 namespace Script
@@ -39,18 +39,16 @@ namespace Script
             ValueModifierUpdated();
 #endif
         }
-
-        private void Update() {
-            SprintTrigger();
-            Move();
-        }
     
-        private void Move() {
-            moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
+        public void Move(InputAction.CallbackContext context) {
+            // moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
+            moveInput = context.ReadValue<Vector2>();
+            isMoveInput = !(moveInput == Vector2.zero);
+            Debug.Log(moveInput);
+            if (moveInput == null) return;
+            
             isMoveInput = moveInput.magnitude != 0;
             anim.SetBool(AnimIsMove, isMoveInput);
-            if (!isMoveInput) return;
-        
             anim.SetFloat(AnimMoveForward, moveInput.y);
             anim.SetFloat(AnimMoveRight, moveInput.x);
 
@@ -71,18 +69,16 @@ namespace Script
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private void SprintTrigger()
+        public void StartTrigger()       // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         {
-            if (!isMoveInput) return;        //걷고있을 때에만 달리기 트리거
-            if(!Input.GetKeyDown(KeyCode.LeftShift) && !Input.GetKeyUp(KeyCode.LeftShift))  return;
-            // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
+            //걷고있을 때에만 달리기 트리거
+            if (!isMoveInput) return;
         
             isSprint = !isSprint;
             moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
         
             //---나중에 스태미너 감소 구현해야함
             //---나중에 달리기 애니메이션 넣어야함
-        
         }
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
