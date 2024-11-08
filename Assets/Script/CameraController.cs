@@ -1,9 +1,10 @@
-using System;
 using System.Linq;
 using Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Script {
+    [RequireComponent(typeof(Cinemachine3rdPersonFollow))]
     public class CameraController : MonoBehaviour, IValueModifierObserver {
         // -------- Mouse Move -> Rotate 관련 -----
         private PlayerMoveController playerController;
@@ -23,12 +24,11 @@ namespace Script {
         [SerializeField] private CinemachineVirtualCamera vcam;
         private Cinemachine3rdPersonFollow componentBase;
         private float mouseScrollAmount;
-        private float zoomDistance = 6f;
+        private float zoomDistance;
         [SerializeField] private float zoomMin;
         [SerializeField] private float zoomMax;
         [SerializeField] private float zoomSpeed;
-
-
+        
 
         private void Awake() {
             cameraRoot = gameObject.transform;
@@ -40,6 +40,10 @@ namespace Script {
             unLockedCam = new UnLockedCamCalculator(cameraRoot);
             lockedCam = new LockedCamCalculator(playerController.gameObject);
             camCal = unLockedCam;
+#if UNITY_EDITOR
+            ValueModifier.Instance.AddSubscriber(this);
+            ValueModifierUpdated();
+#endif
         }
 
         private void Update() {
@@ -94,10 +98,9 @@ namespace Script {
         // 스크롤 드르륵 -> 카메라 줌인 줌아웃
         private void ZoomCamera() {
             if (Input.GetAxis("Mouse ScrollWheel") == 0) return;
-
             mouseScrollAmount = Input.GetAxis("Mouse ScrollWheel");
 
-            zoomDistance -= mouseScrollAmount * zoomSpeed * Time.deltaTime;
+            zoomDistance = componentBase.CameraDistance - mouseScrollAmount * zoomSpeed * Time.deltaTime;
             zoomDistance = Mathf.Clamp(zoomDistance, zoomMin, zoomMax);
             componentBase.CameraDistance = zoomDistance;
         }
@@ -106,11 +109,12 @@ namespace Script {
 #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             zoomSpeed = ValueModifier.Instance.ZoomSpeed;
+            zoomMin = ValueModifier.Instance.ZoomMin;
+            zoomMax = ValueModifier.Instance.ZoomMax;
         }
 #endif
     }
-
-
+    
     // 카메라 록온, 록오프를 " 전략 패턴 " 으로 구현
     internal interface ICameraRotationCalculator {
         public Quaternion SetCameraRotation(Vector2 mouseMoveDelta);
@@ -120,7 +124,7 @@ namespace Script {
     // 카메라가 록온되었을 때 카메라의 각도를 계산해줄 오브젝트
     public class LockedCamCalculator : ICameraRotationCalculator {
         private GameObject lockedObj;
-        private GameObject playerObj;
+        private readonly GameObject playerObj;
 
         public LockedCamCalculator(GameObject player) {
             playerObj = player;

@@ -27,20 +27,21 @@ namespace Script {
         // 각 객체에서 가지고 와야하지 않을까?
         
         [Header("플레이어 움직임")]
-        [SerializeField] private float moveSpeed = 5f; public float MoveSpeed {get => moveSpeed;}
-        [SerializeField] private float sprintSpeed = 3f; public float SprintSpeed {get => sprintSpeed;}
+        [SerializeField] private float moveSpeed = 5f; public float MoveSpeed => moveSpeed;
+        [SerializeField] private float sprintSpeed = 3f; public float SprintSpeed => sprintSpeed;
 
 
 
         [Space(5f), Header("카메라")]
-        [SerializeField] private float zoomSpeed = 8f; public float ZoomSpeed { get => zoomSpeed;}
-        [SerializeField] private float camSensitivity = 1f; public float CamSensitivity {get => camSensitivity;}
-        [SerializeField] float camAngleMaximum = 40f; public float CamAngleMaximum {get => camAngleMaximum;}
-        [SerializeField] float camAngleMinimum = 300f; public float CamAngleMinimum {get => camAngleMinimum;}
+        [SerializeField] private float zoomSpeed = 800f; public float ZoomSpeed => zoomSpeed;
+        [SerializeField] private float zoomMin = 0.5f;  public float ZoomMin => zoomMin;
+        [SerializeField] private float zoomMax = 12f;   public float ZoomMax => zoomMax;
+        [SerializeField] private float camSensitivity = 1f; public float CamSensitivity => camSensitivity;
+        [SerializeField] private float camAngleMaximum = 40f;   public float CamAngleMaximum => camAngleMaximum;
+        [SerializeField] private float camAngleMinimum = 300f;  public float CamAngleMinimum => camAngleMinimum;
         
-        //여기에 zoomMax, zoomMin 들어가야 하는데....이 방식이 맞나? 이게 맞음?
-        
-        
+
+        //....이 방식이 맞나? 이게 맞음?
         private void Awake() {
             if (_instance is null) {
                 _instance = this;
@@ -73,8 +74,10 @@ namespace Script {
     [CanEditMultipleObjects]
     public class ValueModifierEditor : Editor {
         private SerializedProperty moveSpeedProperty;
-        private SerializedProperty runSpeedProperty;
+        private SerializedProperty sprintSpeedProperty;
         private SerializedProperty zoomSpeedProperty;
+        private SerializedProperty zoomMinProperty;
+        private SerializedProperty zoomMaxProperty;
         private SerializedProperty camSensitivityProperty;
         private SerializedProperty camAngleMaximumProperty;
         private SerializedProperty camAngleMinimumProperty;
@@ -83,8 +86,10 @@ namespace Script {
 
         void OnEnable() {
             moveSpeedProperty = serializedObject.FindProperty("moveSpeed");
-            runSpeedProperty = serializedObject.FindProperty("runSpeed");
+            sprintSpeedProperty = serializedObject.FindProperty("sprintSpeed");
             zoomSpeedProperty = serializedObject.FindProperty("zoomSpeed");
+            zoomMinProperty = serializedObject.FindProperty("zoomMin");
+            zoomMaxProperty = serializedObject.FindProperty("zoomMax");
             camSensitivityProperty = serializedObject.FindProperty("camSensitivity");
             camAngleMaximumProperty = serializedObject.FindProperty("camAngleMaximum");
             camAngleMinimumProperty = serializedObject.FindProperty("camAngleMinimum");
@@ -99,16 +104,19 @@ namespace Script {
             GUILayout.BeginVertical(style);
             //Player Movement
             EditorGUILayout.PropertyField(moveSpeedProperty);
-            EditorGUILayout.PropertyField(runSpeedProperty);
+            EditorGUILayout.PropertyField(sprintSpeedProperty);
         
             //Camera Movement
             EditorGUILayout.PropertyField(zoomSpeedProperty);
+            EditorGUILayout.PropertyField(zoomMinProperty);
+            EditorGUILayout.PropertyField(zoomMaxProperty);
             EditorGUILayout.PropertyField(camSensitivityProperty);
             EditorGUILayout.PropertyField(camAngleMaximumProperty);
             EditorGUILayout.PropertyField(camAngleMinimumProperty);
             bool changed = serializedObject.ApplyModifiedProperties();
         
             if (changed) {
+                Debug.Log("Value Modifier changed");
                 instance.ValueUpdateApply();
                 changed = false;
             }

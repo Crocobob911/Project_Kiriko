@@ -34,7 +34,10 @@ namespace Script
         }
         
         private void Start() {
+#if UNITY_EDITOR
             ValueModifier.Instance.AddSubscriber(this);
+            ValueModifierUpdated();
+#endif
         }
 
         private void Update() {
