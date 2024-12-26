@@ -19,7 +19,7 @@ namespace Script {
 
         private readonly float camLockFindDistance = 100f;
         [SerializeField] private float camLockFindRadius = 5f; // 록온 찾는 원기둥 지름
-        
+
         // -------- Zoom 관련 ----------
         [SerializeField] private CinemachineVirtualCamera vcam;
         private Cinemachine3rdPersonFollow componentBase;
