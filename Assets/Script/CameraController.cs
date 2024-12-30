@@ -69,14 +69,14 @@ namespace Script {
                 camCal.SetLockedObj(null);
                 camCal = unLockedCam;
 
-                playerController.CamLock(isCamLocked);
+                playerController.SetCamLock(isCamLocked);
             }
             // ReSharper disable once AssignmentInConditionalExpression
             else if (lockedObj = FindObjectToLock()) {
                 isCamLocked = true;
                 camCal = lockedCam;
                 camCal.SetLockedObj(lockedObj);
-                playerController.CamLock(isCamLocked);
+                playerController.SetCamLock(isCamLocked);
             }
             else {
                 camCal = unLockedCam;

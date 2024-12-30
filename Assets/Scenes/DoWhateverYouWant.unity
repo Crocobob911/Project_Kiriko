@@ -473,7 +473,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1071728159682831915, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.33
+      value: 1.14
       objectReference: {fileID: 0}
     - target: {fileID: 1071728159682831915, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
       propertyPath: m_LocalPosition.y
@@ -481,7 +481,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1071728159682831915, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -21.425915
+      value: -21.84
       objectReference: {fileID: 0}
     - target: {fileID: 1071728159682831915, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
       propertyPath: m_LocalRotation.w
@@ -865,6 +865,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2131187796}
   - component: {fileID: 2131187795}
+  - component: {fileID: 2131187801}
   - component: {fileID: 2131187799}
   - component: {fileID: 2131187798}
   - component: {fileID: 2131187800}
@@ -887,6 +888,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98060703f2bcd8243b2b7ec66f385e39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animController: {fileID: 0}
+  playerBody: {fileID: 0}
+  cameraRoot: {fileID: 0}
+  turnSpeed: 10
 --- !u!4 &2131187796
 Transform:
   m_ObjectHideFlags: 0
@@ -896,7 +901,7 @@ Transform:
   m_GameObject: {fileID: 2131187794}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.33, y: 0.06, z: -15.425916}
+  m_LocalPosition: {x: 1.14, y: 0.06, z: -15.84}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -983,7 +988,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2131187795}
         m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
-        m_MethodName: Move
+        m_MethodName: MoveTrigger
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -997,18 +1002,6 @@ MonoBehaviour:
     m_ActionName: PlayerAction/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2131187795}
-        m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
-        m_MethodName: SprintTrigger
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
         m_MethodName: 
@@ -1028,6 +1021,21 @@ MonoBehaviour:
   m_DefaultActionMap: PlayerAction
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &2131187801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131187794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 259795544e8c46040ad86e9052f8b2ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 0}
+  currentDirection: {x: 0, y: 0}
+  newDirection: {x: 0, y: 0}
 --- !u!1001 &1025817842909334761
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1062,7 +1070,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5760798409403126706, guid: ed5b52fa36d80064dab42051b87fa651, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.33
+      value: 1.14
       objectReference: {fileID: 0}
     - target: {fileID: 5760798409403126706, guid: ed5b52fa36d80064dab42051b87fa651, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1070,7 +1078,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5760798409403126706, guid: ed5b52fa36d80064dab42051b87fa651, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -21.425915
+      value: -21.84
       objectReference: {fileID: 0}
     - target: {fileID: 5760798409403126706, guid: ed5b52fa36d80064dab42051b87fa651, type: 3}
       propertyPath: m_LocalRotation.w
