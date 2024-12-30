@@ -19,7 +19,7 @@ namespace Script {
 
         private readonly float camLockFindDistance = 100f;
         [SerializeField] private float camLockFindRadius = 5f; // 록온 찾는 원기둥 지름
-        
+
         // -------- Zoom 관련 ----------
         [SerializeField] private CinemachineVirtualCamera vcam;
         private Cinemachine3rdPersonFollow componentBase;
@@ -69,14 +69,14 @@ namespace Script {
                 camCal.SetLockedObj(null);
                 camCal = unLockedCam;
 
-                playerController.CamLock(isCamLocked);
+                playerController.SetCamLock(isCamLocked);
             }
             // ReSharper disable once AssignmentInConditionalExpression
             else if (lockedObj = FindObjectToLock()) {
                 isCamLocked = true;
                 camCal = lockedCam;
                 camCal.SetLockedObj(lockedObj);
-                playerController.CamLock(isCamLocked);
+                playerController.SetCamLock(isCamLocked);
             }
             else {
                 camCal = unLockedCam;
