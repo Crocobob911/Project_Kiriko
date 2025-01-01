@@ -1,7 +1,7 @@
 using System.Linq;
 using Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Script {
     [RequireComponent(typeof(Cinemachine3rdPersonFollow))]
@@ -12,8 +12,10 @@ namespace Script {
         private ICameraRotationCalculator camCal;
         private UnLockedCamCalculator unLockedCam;
         private LockedCamCalculator lockedCam;
+        
+        [SerializeField] private float mouseSensitivity = 1f; // 나중에 0.1f가 추가로 곱해짐.
 
-        private Vector2 mouseMoveDelta = new(0, 0);
+        private Vector2 mouseMoveDelta;
         private bool isCamLocked;
         private GameObject lockedObj;
 
@@ -23,8 +25,7 @@ namespace Script {
         // -------- Zoom 관련 ----------
         [SerializeField] private CinemachineVirtualCamera vcam;
         private Cinemachine3rdPersonFollow componentBase;
-        private float mouseScrollAmount;
-        private float zoomDistance;
+        
         [SerializeField] private float zoomMin;
         [SerializeField] private float zoomMax;
         [SerializeField] private float zoomSpeed;
@@ -40,6 +41,7 @@ namespace Script {
             unLockedCam = new UnLockedCamCalculator(cameraRoot);
             lockedCam = new LockedCamCalculator(playerController.gameObject);
             camCal = unLockedCam;
+            
 #if UNITY_EDITOR
             ValueModifier.Instance.AddSubscriber(this);
             ValueModifierUpdated();
@@ -49,65 +51,52 @@ namespace Script {
         private void Update() {
             Debug.DrawRay(cameraRoot.position,
                 new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z));
-            TriggerCamLock();
-            ChangeCameraRotation();
-            ZoomCamera();
-        }
-
-        private void ChangeCameraRotation() {
-            mouseMoveDelta.x = Input.GetAxis("Mouse X");
-            mouseMoveDelta.y = Input.GetAxis("Mouse Y");
-
             cameraRoot.rotation = camCal.SetCameraRotation(mouseMoveDelta);
         }
 
+        public void MouseMoveAction(InputAction.CallbackContext context) {
+            mouseMoveDelta = context.ReadValue<Vector2>() * mouseSensitivity * 0.1f;
+        }
+
         // ReSharper disable Unity.PerformanceAnalysis
-        private void TriggerCamLock() {
-            if (!Input.GetKeyDown(KeyCode.Alpha1)) return;
+        public void TriggerCamLock(InputAction.CallbackContext context) {
             if (isCamLocked) {
                 isCamLocked = false;
                 camCal.SetLockedObj(null);
                 camCal = unLockedCam;
-
-                playerController.SetCamLock(isCamLocked);
+                playerController.SetCamLock(false);
             }
             // ReSharper disable once AssignmentInConditionalExpression
             else if (lockedObj = FindObjectToLock()) {
                 isCamLocked = true;
                 camCal = lockedCam;
                 camCal.SetLockedObj(lockedObj);
-                playerController.SetCamLock(isCamLocked);
-            }
-            else {
-                camCal = unLockedCam;
-                Debug.Log("No Enemy To Lock On");
+                playerController.SetCamLock(true);
             }
         }
 
         // RaySphere로 바라보고 있는 곳에 있는 <Enemy> GameObject를 찾아 반홤.
         private GameObject FindObjectToLock() {
             // ReSharper disable once Unity.PreferNonAllocApi
-            var hits = Physics.SphereCastAll(cameraRoot.position, camLockFindRadius,
+            var hits = Physics.SphereCastAll(
+                    cameraRoot.position, camLockFindRadius,
                 new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z),
                 camLockFindDistance);
+            
             return (from hit in hits
                 where hit.transform.GetComponent<Enemy>()
                 select hit.transform.GetComponent<Enemy>().transform.gameObject).FirstOrDefault();
         }
 
         // 스크롤 드르륵 -> 카메라 줌인 줌아웃
-        private void ZoomCamera() {
-            if (Input.GetAxis("Mouse ScrollWheel") == 0) return;
-            mouseScrollAmount = Input.GetAxis("Mouse ScrollWheel");
-
-            zoomDistance = componentBase.CameraDistance - mouseScrollAmount * zoomSpeed * Time.deltaTime;
-            zoomDistance = Mathf.Clamp(zoomDistance, zoomMin, zoomMax);
-            componentBase.CameraDistance = zoomDistance;
+        public void ZoomCamera(InputAction.CallbackContext context) {
+            componentBase.CameraDistance = Mathf.Clamp(componentBase.CameraDistance - context.ReadValue<float>() * zoomSpeed * Time.deltaTime, zoomMin, zoomMax);
         }
 
 
 #if UNITY_EDITOR
         public void ValueModifierUpdated() {
+            mouseSensitivity = ValueModifier.Instance.CamSensitivity;
             zoomSpeed = ValueModifier.Instance.ZoomSpeed;
             zoomMin = ValueModifier.Instance.ZoomMin;
             zoomMax = ValueModifier.Instance.ZoomMax;
@@ -142,7 +131,7 @@ namespace Script {
 
     // 카메라가 자유로울 때 카메라의 각도를 계산해줄 오브젝트
     public class UnLockedCamCalculator : ICameraRotationCalculator, IValueModifierObserver {
-        float sensitivity = 1f;
+        // float sensitivity = 0.2f; // 얘를 사용자가 설정할 수 있게 해야할텐데
         float camAngleMaximum = 40f;
         float camAngleMinimum = 300f;
         private float camAngleXadjusted;
@@ -156,19 +145,20 @@ namespace Script {
         // 마우스 움직임 Vector를 Input 받아서 Camera의 이동 거리 계산
         // 마우스가 자유롭게 움직일 때 사용됨
         public Quaternion SetCameraRotation(Vector2 mouseMoveDelta) {
+            
             camAngle = cameraRoot.rotation.eulerAngles;
-            camAngleXadjusted = camAngle.x - mouseMoveDelta.y * sensitivity;
+
+            camAngleXadjusted = camAngle.x - mouseMoveDelta.y;
             camAngleXadjusted =
                 camAngleXadjusted < 180f
                     ? Mathf.Clamp(camAngleXadjusted, -1f, camAngleMaximum)
                     : Mathf.Clamp(camAngleXadjusted, camAngleMinimum, 361f);
 
             return Quaternion.Euler(camAngleXadjusted,
-                camAngle.y + mouseMoveDelta.x * sensitivity, camAngle.z);
+                camAngle.y + mouseMoveDelta.x, camAngle.z);
         }
 #if UNITY_EDITOR
         public void ValueModifierUpdated() {
-            sensitivity = ValueModifier.Instance.CamSensitivity;
             camAngleMaximum = ValueModifier.Instance.CamAngleMaximum;
             camAngleMinimum = ValueModifier.Instance.CamAngleMinimum;
         }
