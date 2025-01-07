@@ -49,8 +49,6 @@ namespace Script {
         }
 
         private void Update() {
-            Debug.DrawRay(cameraRoot.position,
-                new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z));
             cameraRoot.rotation = camCal.SetCameraRotation(mouseMoveDelta);
         }
 
@@ -60,19 +58,20 @@ namespace Script {
 
         // ReSharper disable Unity.PerformanceAnalysis
         public void TriggerCamLock(InputAction.CallbackContext context) {
-            if (isCamLocked) {
+            if (isCamLocked) { // 록온을 풀어야 함.
                 isCamLocked = false;
                 camCal.SetLockedObj(null);
                 camCal = unLockedCam;
                 playerController.SetCamLock(false);
             }
             // ReSharper disable once AssignmentInConditionalExpression
-            else if (lockedObj = FindObjectToLock()) {
+            else if (lockedObj = FindObjectToLock()) { // 록온을 걸어야 함.
                 isCamLocked = true;
                 camCal = lockedCam;
                 camCal.SetLockedObj(lockedObj);
                 playerController.SetCamLock(true);
             }
+            Debug.Log("isCamLocked : " + isCamLocked);
         }
 
         // RaySphere로 바라보고 있는 곳에 있는 <Enemy> GameObject를 찾아 반홤.
@@ -80,8 +79,8 @@ namespace Script {
             // ReSharper disable once Unity.PreferNonAllocApi
             var hits = Physics.SphereCastAll(
                     cameraRoot.position, camLockFindRadius,
-                new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z),
-                camLockFindDistance);
+                    new Vector3(cameraRoot.forward.x, 0, cameraRoot.forward.z),
+                    camLockFindDistance);
             
             return (from hit in hits
                 where hit.transform.GetComponent<Enemy>()

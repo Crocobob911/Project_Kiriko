@@ -442,7 +442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6393974813386716368, guid: 459f79a004eb51144840e79b6950c697, type: 3}
       propertyPath: m_Name
-      value: Armature (1)
+      value: Armature
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -944,11 +944,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2131187796}
-  - component: {fileID: 2131187795}
-  - component: {fileID: 2131187801}
   - component: {fileID: 2131187799}
   - component: {fileID: 2131187798}
   - component: {fileID: 2131187802}
+  - component: {fileID: 2131187801}
+  - component: {fileID: 2131187803}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -956,23 +956,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2131187795
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2131187794}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98060703f2bcd8243b2b7ec66f385e39, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  animController: {fileID: 0}
-  playerBody: {fileID: 0}
-  cameraRoot: {fileID: 0}
-  turnSpeed: 10
 --- !u!4 &2131187796
 Transform:
   m_ObjectHideFlags: 0
@@ -1082,7 +1065,7 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2131187795}
+      - m_Target: {fileID: 2131187803}
         m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
         m_MethodName: MoveTrigger
         m_Mode: 0
@@ -1098,7 +1081,7 @@ MonoBehaviour:
     m_ActionName: PlayerAction/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2131187795}
+      - m_Target: {fileID: 2131187803}
         m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
         m_MethodName: SprintTrigger
         m_Mode: 0
@@ -1111,12 +1094,50 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 675937a8-6980-4065-8a7e-331161ceb901
-    m_ActionName: PlayerAction/Sprint[/Keyboard/leftShift]
+    m_ActionName: PlayerAction/Sprint[/Keyboard/shift]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2131187803}
+        m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
+        m_MethodName: Jump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d7b75a9b-c2a1-43f7-90a3-01aaaf1957ae
+    m_ActionName: PlayerAction/Jump[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b8918103-4277-4e4b-b6ba-e17edc43e1c4
+    m_ActionName: PlayerAction/MouseLeft[/Mouse/leftButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: PC
   m_DefaultActionMap: PlayerAction
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &2131187803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131187794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98060703f2bcd8243b2b7ec66f385e39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  animController: {fileID: 2131187801}
+  playerBody: {fileID: 2131187796}
+  cameraRoot: {fileID: 442407696}
+  playerRigidbody: {fileID: 2131187799}
+  turnSpeed: 10
 --- !u!1001 &1025817842909334761
 PrefabInstance:
   m_ObjectHideFlags: 0
