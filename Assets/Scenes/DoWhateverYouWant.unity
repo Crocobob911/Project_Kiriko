@@ -393,6 +393,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b70cd22e-3eec-48bb-90fd-4d257bc5a089
     m_ActionName: Player/CamMove[/Mouse/delta]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2131187803}
+        m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
+        m_MethodName: SprintTrigger
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: b33cfdef-3017-4eb0-96d2-8c6182c3a743
+    m_ActionName: Player/New action
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

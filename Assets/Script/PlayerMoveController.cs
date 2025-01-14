@@ -115,12 +115,14 @@ namespace Script
         /**
          * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
          */
-        private Vector3 ChangeMoveVectorWithCamera(Vector2 moveInput) {
-            if (isMoveInputUnable) return new Vector3(moveInput.x, 0, moveInput.y);
+        private Vector3 ChangeMoveVectorWithCamera(Vector2 moveDirection) {
+            if (isMoveInputUnable) 
+                return playerBody.forward * moveDirection.y + playerBody.right * moveDirection.x;
+            //tlqkf
             
             cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);
             cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
-            return cameraForward * moveInput.y + cameraSide * moveInput.x;
+            return cameraForward * moveDirection.y + cameraSide * moveDirection.x;
         }
         
         private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
@@ -140,9 +142,8 @@ namespace Script
         // ReSharper disable Unity.PerformanceAnalysis
         public void SprintTrigger(InputAction.CallbackContext context)       // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         {
-            Debug.Log("Sprint Trigger Called");
             //걷고있을 때에만 달리기 트리거
-            if (!isMoveInput) return;
+            if (!isMoveInput || context is { started: false, canceled: false }) return;
         
             isSprint = !isSprint;
             moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
