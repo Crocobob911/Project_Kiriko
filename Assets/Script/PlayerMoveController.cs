@@ -1,6 +1,7 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.Serialization;
 
 namespace Script
 {
@@ -9,6 +10,9 @@ namespace Script
         [SerializeField] private float moveSpeed = 5f;
         private float sprintSpeed = 3f;
         private bool isSprint;
+        
+        private bool isJumping = false;
+        private bool isMoveInputUnable = false;
         
         [SerializeField] private PlayerAnimController animController;
  
@@ -20,7 +24,8 @@ namespace Script
         private Vector2 moveInputVector;
         private Vector3 cameraForward;
         private Vector3 cameraSide;
-        
+
+        private Vector2 moveDir;
         private Vector3 currentMovingDir;
         
         /**
@@ -28,6 +33,9 @@ namespace Script
          * 얼마나 민감하게 input에 반응하느냐
          */
         [SerializeField] private float turnSpeed = 10f;
+        
+        [SerializeField] private float jumpForce = 5f;
+        // Value Modifier
 
         private bool isCamLocked;
 
@@ -52,15 +60,41 @@ namespace Script
         /**
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
          */
-        public void MoveTrigger(InputAction.CallbackContext context) {
+        public void MoveInput(InputAction.CallbackContext context) {
             moveInputVector = context.ReadValue<Vector2>();
+            
+            if (isMoveInputUnable) return;
+            SetMoveDirection(moveInputVector);
+        }
+
+        private void SetMoveDirection(Vector2 inputVector) {
+            moveDir = inputVector;
             isMoveInput = moveInputVector != Vector2.zero;
-            animController.SetMoveAnimDirection(moveInputVector);
+            animController.SetMoveAnimDirection(moveDir);
         }
 
         public void Jump(InputAction.CallbackContext context) {
-            Debug.Log("Jump Entered" + context.ReadValueAsButton());
-            if(context.performed) playerRigidbody.AddForce(Vector3.up * 10f, ForceMode.Impulse);
+            if (!context.started || isJumping) return;
+
+            isJumping = true;
+            playerRigidbody.velocity = new Vector3(playerRigidbody.velocity.x, 0, playerRigidbody.velocity.z);
+            playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            
+            animController.StartJump();
+            isMoveInputUnable = true;
+            
+            // 도약 모션 들어가야함.
+            // 체공 모션이 들어가야함.
+            
+            // 1. 공중에 있는 동안 Input 제한되어야.
+            // 2. 땅에 착지하면 Input 다시 가능한 로직 구현해야함.
+        }
+
+        public void Land() {
+            isJumping = false;
+            isMoveInputUnable = false;
+            animController.Land();
+            SetMoveDirection(moveInputVector);
         }
 
         /// <summary>
@@ -70,7 +104,7 @@ namespace Script
         private void Move() {
             if(!isMoveInput) return;
             currentMovingDir = LerpMoveDirection(
-                        ChangeMoveVectorWithCamera(moveInputVector), currentMovingDir);
+                        ChangeMoveVectorWithCamera(moveDir), currentMovingDir);
 
             // 카메라 잠금 상태에 따라 player 객체의 전방 변경
             // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
@@ -81,7 +115,9 @@ namespace Script
         /**
          * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
          */
-        private Vector3 ChangeMoveVectorWithCamera(Vector3 moveInput) {
+        private Vector3 ChangeMoveVectorWithCamera(Vector2 moveInput) {
+            if (isMoveInputUnable) return new Vector3(moveInput.x, 0, moveInput.y);
+            
             cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);
             cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
             return cameraForward * moveInput.y + cameraSide * moveInput.x;
@@ -107,7 +143,7 @@ namespace Script
             Debug.Log("Sprint Trigger Called");
             //걷고있을 때에만 달리기 트리거
             if (!isMoveInput) return;
-
+        
             isSprint = !isSprint;
             moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
             Debug.Log("Sprint Trigger : " + isSprint);
@@ -115,6 +151,7 @@ namespace Script
             //---나중에 스태미너 감소 구현해야함
             //---나중에 달리기 애니메이션 넣어야함
         }
+        
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
