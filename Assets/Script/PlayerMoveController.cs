@@ -1,36 +1,41 @@
-using System;
+using UnityEngine.InputSystem;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 namespace Script
 {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
-        // 애니메이터 매개변수들
-        // Animator.StringToHash()로 그 값들을 미리 가져와 갖고있음으로써, 연산 줄여줌.
-        private static readonly int AnimIsMove = Animator.StringToHash("isMove");
-        private static readonly int AnimMoveForward = Animator.StringToHash("moveForward");
-        private static readonly int AnimMoveRight = Animator.StringToHash("moveRight");
-        private static readonly int AnimIsCamLocked = Animator.StringToHash("isCamLocked");
-        
-        private float moveSpeed = 5f;
+
+        [SerializeField] private float moveSpeed = 5f;
         private float sprintSpeed = 3f;
         private bool isSprint;
         
-        private Animator anim;
-        private Transform playerBody;
-        private Transform cameraRoot;
+        [SerializeField] private PlayerAnimController animController;
+ 
+        [SerializeField] private Transform playerBody;
+        [SerializeField] private Transform cameraRoot;
+        [SerializeField] private Rigidbody playerRigidbody;
         
         private bool isMoveInput;
-        private Vector2 moveInput;
-        private Vector3 forwardMove;
-        private Vector3 sideMove;
-        private Vector3 moveDir;
+        private Vector2 moveInputVector;
+        private Vector3 cameraForward;
+        private Vector3 cameraSide;
+        
+        private Vector3 currentMovingDir;
+        
+        /**
+         * 플레이어가 얼마나 빨리 도느냐
+         * 얼마나 민감하게 input에 반응하느냐
+         */
+        [SerializeField] private float turnSpeed = 10f;
 
         private bool isCamLocked;
 
         private void Awake() {
             cameraRoot = gameObject.transform.GetChild(0).GetComponent<Transform>();
             playerBody = gameObject.transform.GetChild(1).GetComponent<Transform>();
-            anim = playerBody.GetComponent<Animator>();
+            playerRigidbody = gameObject.transform.GetComponent<Rigidbody>();
+            animController = transform.GetComponent<PlayerAnimController>();
         }
         
         private void Start() {
@@ -41,48 +46,74 @@ namespace Script
         }
 
         private void Update() {
-            SprintTrigger();
             Move();
         }
-    
-        private void Move() {
-            moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); 
-            isMoveInput = moveInput.magnitude != 0;
-            anim.SetBool(AnimIsMove, isMoveInput);
-            if (!isMoveInput) return;
-        
-            anim.SetFloat(AnimMoveForward, moveInput.y);
-            anim.SetFloat(AnimMoveRight, moveInput.x);
 
-            forwardMove = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z).normalized;
-            sideMove = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z).normalized;
-            moveDir = (forwardMove * moveInput.y + sideMove * moveInput.x).normalized;
-            var diagonalMoveCorrectedSpeed = Mathf.Min(moveDir.magnitude, 1f) * moveSpeed; 
-            //대각선 빨라짐 제한
-            
-            playerBody.forward = isCamLocked ? forwardMove : moveDir;
-            transform.position += moveDir * (diagonalMoveCorrectedSpeed * Time.deltaTime);
+        /**
+         * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
+         */
+        public void MoveTrigger(InputAction.CallbackContext context) {
+            moveInputVector = context.ReadValue<Vector2>();
+            isMoveInput = moveInputVector != Vector2.zero;
+            animController.SetMoveAnimDirection(moveInputVector);
         }
 
-        public void CamLock(bool isLocked)
+        public void Jump(InputAction.CallbackContext context) {
+            Debug.Log("Jump Entered" + context.ReadValueAsButton());
+            if(context.performed) playerRigidbody.AddForce(Vector3.up * 10f, ForceMode.Impulse);
+        }
+
+        /// <summary>
+        /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
+        /// Update 함수에서 호출
+        /// </summary>
+        private void Move() {
+            if(!isMoveInput) return;
+            currentMovingDir = LerpMoveDirection(
+                        ChangeMoveVectorWithCamera(moveInputVector), currentMovingDir);
+
+            // 카메라 잠금 상태에 따라 player 객체의 전방 변경
+            // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
+            playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
+            transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
+        }
+
+        /**
+         * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
+         */
+        private Vector3 ChangeMoveVectorWithCamera(Vector3 moveInput) {
+            cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);
+            cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
+            return cameraForward * moveInput.y + cameraSide * moveInput.x;
+        }
+        
+        private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
+            // 플레이어 이동 Lerp
+            if ((newMoveDir - currentMoveDir).magnitude >= 0.001f) {
+                return Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime);
+            }
+            return newMoveDir;
+        }
+
+        public void SetCamLock(bool isLocked)
         {
             isCamLocked = isLocked;
-            anim.SetBool(AnimIsCamLocked, isCamLocked);
+            animController.SetIsCamLocked(isLocked);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private void SprintTrigger()
+        public void SprintTrigger(InputAction.CallbackContext context)       // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         {
-            if (!isMoveInput) return;        //걷고있을 때에만 달리기 트리거
-            if(!Input.GetKeyDown(KeyCode.LeftShift) && !Input.GetKeyUp(KeyCode.LeftShift))  return;
-            // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
-        
+            Debug.Log("Sprint Trigger Called");
+            //걷고있을 때에만 달리기 트리거
+            if (!isMoveInput) return;
+
             isSprint = !isSprint;
             moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
+            Debug.Log("Sprint Trigger : " + isSprint);
         
             //---나중에 스태미너 감소 구현해야함
             //---나중에 달리기 애니메이션 넣어야함
-        
         }
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
