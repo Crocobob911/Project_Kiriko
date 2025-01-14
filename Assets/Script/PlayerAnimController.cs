@@ -29,29 +29,30 @@ public class PlayerAnimController : MonoBehaviour
     }
     
     void Update() {
-        SetPlayerAnim(LerpMoveAnimDirection(newDirection, currentDirection));
+        SetPlayerAnim();
+    }
+    
+    private void SetPlayerAnim() {
+        if(newDirection == currentDirection) return;
+        
+        LerpMoveAnimDirection();
+        
+        animator.SetFloat(animMoveForward, currentDirection.y);
+        animator.SetFloat(animMoveRight, currentDirection.x);
     }
     
     public void SetMoveAnimDirection(Vector2 moveDir) {
         newDirection = moveDir;
         animator.SetBool(animIsMove, moveDir != Vector2.zero);
-        Debug.Log("AnimDirection : " + moveDir + " || Animator SetBool : " + (moveDir != Vector2.zero));
     }
 
-    private Vector2 LerpMoveAnimDirection(Vector2 newDir, Vector2 currentDir) {
-        if ((currentDir - newDir).magnitude >= 0.001f) {
-            currentDir = Vector2.Lerp(currentDir, newDir, 5f * Time.deltaTime);
+    private void LerpMoveAnimDirection() {
+        if ((currentDirection - newDirection).magnitude >= 0.001f) {
+            currentDirection = Vector2.Lerp(currentDirection, newDirection, 5f * Time.deltaTime);
         }
-        else currentDir = newDir;
-        
-        return currentDir;
+        else currentDirection = newDirection;
     }
-
-    private void SetPlayerAnim(Vector2 currentDir) {
-        animator.SetFloat(animMoveForward, currentDir.y);
-        animator.SetFloat(animMoveRight, currentDir.x);
-    }
-
+    
     public void SetIsCamLocked(bool isCamLocked) {
         animator.SetBool(animIsCamLocked, isCamLocked);
     }

@@ -39,8 +39,6 @@ namespace Script
         }
         
         private void Start() {
-            Debug.Log("Hello, Player here.");
-            
 #if UNITY_EDITOR
             ValueModifier.Instance.AddSubscriber(this);
             ValueModifierUpdated();
@@ -55,7 +53,6 @@ namespace Script
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
          */
         public void MoveTrigger(InputAction.CallbackContext context) {
-            Debug.Log("Move Input = " + context.ReadValue<Vector2>());
             moveInputVector = context.ReadValue<Vector2>();
             isMoveInput = moveInputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveInputVector);
@@ -112,8 +109,8 @@ namespace Script
             if (!isMoveInput) return;
 
             isSprint = !isSprint;
-            Debug.Log("Sprint Trigger : " + isSprint);
             moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
+            Debug.Log("Sprint Trigger : " + isSprint);
         
             //---나중에 스태미너 감소 구현해야함
             //---나중에 달리기 애니메이션 넣어야함
