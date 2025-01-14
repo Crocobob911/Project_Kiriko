@@ -27,18 +27,18 @@ namespace Script {
         // 각 객체에서 가지고 와야하지 않을까?
         
         [Header("플레이어 움직임")]
-        [SerializeField] private float moveSpeed = 5f; public float MoveSpeed => moveSpeed;
-        [SerializeField] private float sprintSpeed = 3f; public float SprintSpeed => sprintSpeed;
+        [SerializeField] private float moveSpeed; public float MoveSpeed => moveSpeed;
+        [SerializeField] private float sprintSpeed; public float SprintSpeed => sprintSpeed;
 
 
 
         [Space(5f), Header("카메라")]
-        [SerializeField] private float zoomSpeed = 800f; public float ZoomSpeed => zoomSpeed;
-        [SerializeField] private float zoomMin = 0.5f;  public float ZoomMin => zoomMin;
-        [SerializeField] private float zoomMax = 12f;   public float ZoomMax => zoomMax;
-        [SerializeField] private float camSensitivity = 1f; public float CamSensitivity => camSensitivity;
-        [SerializeField] private float camAngleMaximum = 40f;   public float CamAngleMaximum => camAngleMaximum;
-        [SerializeField] private float camAngleMinimum = 300f;  public float CamAngleMinimum => camAngleMinimum;
+        [SerializeField] private float camSensitivity; public float CamSensitivity => camSensitivity;
+        [SerializeField] private float zoomSpeed; public float ZoomSpeed => zoomSpeed;
+        [SerializeField] private float zoomMin;  public float ZoomMin => zoomMin;
+        [SerializeField] private float zoomMax;   public float ZoomMax => zoomMax;
+        [SerializeField] private float camAngleMaximum;   public float CamAngleMaximum => camAngleMaximum;
+        [SerializeField] private float camAngleMinimum;  public float CamAngleMinimum => camAngleMinimum;
         
 
         //....이 방식이 맞나? 이게 맞음?
@@ -75,10 +75,10 @@ namespace Script {
     public class ValueModifierEditor : Editor {
         private SerializedProperty moveSpeedProperty;
         private SerializedProperty sprintSpeedProperty;
+        private SerializedProperty camSensitivityProperty;
         private SerializedProperty zoomSpeedProperty;
         private SerializedProperty zoomMinProperty;
         private SerializedProperty zoomMaxProperty;
-        private SerializedProperty camSensitivityProperty;
         private SerializedProperty camAngleMaximumProperty;
         private SerializedProperty camAngleMinimumProperty;
     
@@ -87,10 +87,10 @@ namespace Script {
         void OnEnable() {
             moveSpeedProperty = serializedObject.FindProperty("moveSpeed");
             sprintSpeedProperty = serializedObject.FindProperty("sprintSpeed");
+            camSensitivityProperty = serializedObject.FindProperty("camSensitivity");
             zoomSpeedProperty = serializedObject.FindProperty("zoomSpeed");
             zoomMinProperty = serializedObject.FindProperty("zoomMin");
             zoomMaxProperty = serializedObject.FindProperty("zoomMax");
-            camSensitivityProperty = serializedObject.FindProperty("camSensitivity");
             camAngleMaximumProperty = serializedObject.FindProperty("camAngleMaximum");
             camAngleMinimumProperty = serializedObject.FindProperty("camAngleMinimum");
             instance = serializedObject.targetObject as ValueModifier;
@@ -107,10 +107,10 @@ namespace Script {
             EditorGUILayout.PropertyField(sprintSpeedProperty);
         
             //Camera Movement
+            EditorGUILayout.PropertyField(camSensitivityProperty);
             EditorGUILayout.PropertyField(zoomSpeedProperty);
             EditorGUILayout.PropertyField(zoomMinProperty);
             EditorGUILayout.PropertyField(zoomMaxProperty);
-            EditorGUILayout.PropertyField(camSensitivityProperty);
             EditorGUILayout.PropertyField(camAngleMaximumProperty);
             EditorGUILayout.PropertyField(camAngleMinimumProperty);
             bool changed = serializedObject.ApplyModifiedProperties();
