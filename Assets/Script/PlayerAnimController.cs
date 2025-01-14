@@ -35,6 +35,7 @@ public class PlayerAnimController : MonoBehaviour
     public void SetMoveAnimDirection(Vector2 moveDir) {
         newDirection = moveDir;
         animator.SetBool(animIsMove, moveDir != Vector2.zero);
+        Debug.Log("AnimDirection : " + moveDir + " || Animator SetBool : " + (moveDir != Vector2.zero));
     }
 
     private Vector2 LerpMoveAnimDirection(Vector2 newDir, Vector2 currentDir) {

@@ -58,6 +58,10 @@ namespace Script {
 
         // ReSharper disable Unity.PerformanceAnalysis
         public void TriggerCamLock(InputAction.CallbackContext context) {
+            if (!context.started) return;
+            
+            Debug.Log("INPUT:F1 = TriggerCamLock Called.");
+            
             if (isCamLocked) { // 록온을 풀어야 함.
                 isCamLocked = false;
                 camCal.SetLockedObj(null);
