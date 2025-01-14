@@ -11,6 +11,7 @@ public class PlayerAnimController : MonoBehaviour
     private readonly int animMoveForward = Animator.StringToHash("moveForward");
     private readonly int animMoveRight = Animator.StringToHash("moveRight");
     private readonly int animIsCamLocked = Animator.StringToHash("isCamLocked");
+    private readonly int animIsOnAir = Animator.StringToHash("isOnAir");
 
     [SerializeField]private Animator animator;
     
@@ -52,6 +53,20 @@ public class PlayerAnimController : MonoBehaviour
         }
         else currentDirection = newDirection;
     }
+
+    public void StartJump() {
+        animator.SetBool(animIsOnAir, true);
+        
+        // 도약 모션 재생 들어가야함.
+    }
+
+    public void Land() {
+        animator.SetBool(animIsOnAir, false);
+        
+        // 착지 모션 재생 들어가야함.
+    }
+    
+    
     
     public void SetIsCamLocked(bool isCamLocked) {
         animator.SetBool(animIsCamLocked, isCamLocked);

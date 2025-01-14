@@ -1,6 +1,7 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
+using UnityEngine.Serialization;
 
 namespace Script
 {
@@ -9,6 +10,7 @@ namespace Script
         [SerializeField] private float moveSpeed = 5f;
         private float sprintSpeed = 3f;
         private bool isSprint;
+        private bool isMoveInputUnable = false;
         
         [SerializeField] private PlayerAnimController animController;
  
@@ -28,6 +30,9 @@ namespace Script
          * 얼마나 민감하게 input에 반응하느냐
          */
         [SerializeField] private float turnSpeed = 10f;
+        
+        [SerializeField] private float jumpForce = 5f;
+        // Value Modifier
 
         private bool isCamLocked;
 
@@ -53,14 +58,33 @@ namespace Script
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
          */
         public void MoveTrigger(InputAction.CallbackContext context) {
+            if(isMoveInputUnable) return;
+            
             moveInputVector = context.ReadValue<Vector2>();
             isMoveInput = moveInputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveInputVector);
         }
 
         public void Jump(InputAction.CallbackContext context) {
-            Debug.Log("Jump Entered" + context.ReadValueAsButton());
-            if(context.performed) playerRigidbody.AddForce(Vector3.up * 10f, ForceMode.Impulse);
+            if (!context.started) return;
+            
+            playerRigidbody.velocity = new Vector3(playerRigidbody.velocity.x, 0, playerRigidbody.velocity.z);
+            playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            
+            animController.StartJump();
+            isMoveInputUnable = true;
+
+            
+            // 도약 모션 들어가야함.
+            // 체공 모션이 들어가야함.
+            
+            // 1. 공중에 있는 동안 Input 제한되어야.
+            // 2. 땅에 착지하면 Input 다시 가능한 로직 구현해야함.
+        }
+
+        public void Land() {
+            isMoveInputUnable = false;
+            animController.Land();
         }
 
         /// <summary>
