@@ -56,6 +56,7 @@ public class PlayerAnimController : MonoBehaviour
 
     public void StartJump() {
         animator.SetBool(animIsOnAir, true);
+        SetMoveAnimDirection(Vector2.zero);
         
         // 도약 모션 재생 들어가야함.
     }

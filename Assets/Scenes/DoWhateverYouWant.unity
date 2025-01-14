@@ -269,7 +269,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2131187803}
         m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
-        m_MethodName: MoveTrigger
+        m_MethodName: MoveInput
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -297,22 +297,6 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 77b639d3-3085-48ba-b4e1-111a68291b16
     m_ActionName: Player/Jump[/Keyboard/space]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2131187803}
-        m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
-        m_MethodName: SprintTrigger
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 2c42fa44-2baf-4368-a913-8a82dc522b81
-    m_ActionName: Player/Sprint[/Keyboard/leftShift]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 442407697}

@@ -7,10 +7,8 @@ using UnityEngine;
 public class LandingColliderForPlayer : MonoBehaviour {
     [SerializeField] private PlayerMoveController player;
 
-    private void OnCollisionEnter(Collision collision) {
-        Debug.Log(collision.gameObject.name);
-        if (!collision.transform.CompareTag(null)) {
-            Debug.Log("Landing collider Entered");
+    private void OnTriggerEnter(Collider other){
+        if (!other.transform.CompareTag("Ground")) {
             player.Land();
         }
     }
