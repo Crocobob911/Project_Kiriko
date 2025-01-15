@@ -6,10 +6,12 @@ using UnityEngine.Serialization;
 namespace Script
 {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
-
-        [SerializeField] private float moveSpeed = 5f;
+        
+        [SerializeField] private float defaultMoveSpeed = 5f;
+        private float moveSpeed;
         private float sprintSpeed = 3f;
-        private bool isSprint;
+        private bool isSprint = false;
+        private bool isSprintInput = false;
         
         private bool isJumping = false;
         private bool isMoveInputUnable = false;
@@ -63,16 +65,33 @@ namespace Script
         public void MoveInput(InputAction.CallbackContext context) {
             moveInputVector = context.ReadValue<Vector2>();
             
-            if (isMoveInputUnable) return;
-            SetMoveDirection(moveInputVector);
+            MoveApply(moveInputVector);
         }
 
-        private void SetMoveDirection(Vector2 inputVector) {
+        private void MoveApply(Vector2 inputVector) {
+            if (isMoveInputUnable) return;
+            
             moveDir = inputVector;
             isMoveInput = moveInputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveDir);
         }
+        
+        /// <summary>
+        /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
+        /// Update 함수에서 호출
+        /// </summary>
+        private void Move() {
+            if(!isMoveInput) return;
+            currentMovingDir = LerpMoveDirection(
+                ChangeMoveVectorWithCamera(moveDir), currentMovingDir);
 
+            // 카메라 잠금 상태에 따라 player 객체의 전방 변경
+            // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
+            playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
+            
+            transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
+        }
+        
         public void Jump(InputAction.CallbackContext context) {
             if (!context.started || isJumping) return;
 
@@ -93,32 +112,21 @@ namespace Script
         public void Land() {
             isJumping = false;
             isMoveInputUnable = false;
+            
             animController.Land();
-            SetMoveDirection(moveInputVector);
+            
+            MoveApply(moveInputVector);
+            SprintApply(isSprintInput);
         }
 
-        /// <summary>
-        /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
-        /// Update 함수에서 호출
-        /// </summary>
-        private void Move() {
-            if(!isMoveInput) return;
-            currentMovingDir = LerpMoveDirection(
-                        ChangeMoveVectorWithCamera(moveDir), currentMovingDir);
-
-            // 카메라 잠금 상태에 따라 player 객체의 전방 변경
-            // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
-            playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
-            transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
-        }
 
         /**
          * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
          */
         private Vector3 ChangeMoveVectorWithCamera(Vector2 moveDirection) {
-            if (isMoveInputUnable) 
-                return playerBody.forward * moveDirection.y + playerBody.right * moveDirection.x;
-            //tlqkf
+            if (isMoveInputUnable) {
+                return playerBody.forward * moveDirection;
+            }
             
             cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);
             cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
@@ -140,18 +148,30 @@ namespace Script
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        public void SprintTrigger(InputAction.CallbackContext context)       // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
+        public void SprintInput(InputAction.CallbackContext context)       // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         {
-            //걷고있을 때에만 달리기 트리거
-            if (!isMoveInput || context is { started: false, canceled: false }) return;
-        
-            isSprint = !isSprint;
-            moveSpeed = isSprint ? moveSpeed + sprintSpeed : moveSpeed - sprintSpeed;
-            Debug.Log("Sprint Trigger : " + isSprint);
-        
+            if(!isMoveInput) return;        // 걷고있을 때에만 달리기 트리거
+            
+            if(context.started) isSprintInput = true;
+            else if (context.canceled) isSprintInput = false;
+            else return;
+            
+            Debug.Log("SprintInput : " + isSprintInput);
+            
+            SprintApply(isSprintInput);
+        }
+
+        private void SprintApply(bool input) {
+            if (isMoveInputUnable || isSprint == input) return;
+            
+            isSprint = input;
+            moveSpeed = isSprint ? defaultMoveSpeed + sprintSpeed : defaultMoveSpeed;
+            Debug.Log("Sprint Trigger : " + isSprint + " && moveSpeed : " + moveSpeed);
+            
             //---나중에 스태미너 감소 구현해야함
             //---나중에 달리기 애니메이션 넣어야함
         }
+        
         
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {

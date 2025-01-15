@@ -397,7 +397,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2131187803}
         m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
-        m_MethodName: SprintTrigger
+        m_MethodName: SprintInput
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
