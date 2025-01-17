@@ -47,7 +47,7 @@ namespace Script
         }
 
         private void Start() {
-            ChangeDelegate_Idle();
+            ChangeDelegate_Inputable();
 
 #if UNITY_EDITOR
             ValueModifier.Instance.AddSubscriber(this);
@@ -61,15 +61,15 @@ namespace Script
         
         #region Delegates Switch
         //==============================================================
-        private void ChangeDelegate_Idle() {
-            dl_moveApply = MoveApply_NotJump;
-            dl_changeVectorWithCamera = ChangeMoveVectorWithCamera;
-            dl_sprintApply = SprintApply_NotJump;
+        private void ChangeDelegate_Inputable() {
+            dl_moveApply = MoveApply_Inputable;
+            dl_CalculMoveDir = ChangeMoveVectorWithCamera;
+            dl_sprintApply = SprintApply_Inputable;
         }
 
-        private void ChangeDelegate_Jump() {
+        private void ChangeDelegate_UnInputable() {
             dl_moveApply = vector => {};
-            dl_changeVectorWithCamera = vector => currentMovingDir;
+            dl_CalculMoveDir = vector => currentMovingDir;
             dl_sprintApply = input => {};
         }
         //==============================================================
@@ -90,7 +90,7 @@ namespace Script
         private delegate void MoveApply(Vector2 inputVector);
         private MoveApply dl_moveApply;
         
-        private void MoveApply_NotJump(Vector2 inputVector) {
+        private void MoveApply_Inputable(Vector2 inputVector) {
             moveDir = inputVector;
             isMoveInput = moveInputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveDir);
@@ -106,7 +106,7 @@ namespace Script
         private void Move() {
             if(!isMoveInput) return;
 
-            currentMovingDir = dl_changeVectorWithCamera(moveDir);
+            currentMovingDir = dl_CalculMoveDir(moveDir);
                     
             // 카메라 잠금 상태에 따라 player 객체의 전방 변경
             // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
@@ -121,8 +121,8 @@ namespace Script
         /// 움직이는 동안, 카메라 방향에 따라 WASD의 방향이 바뀐다.
         /// 점프 중엔 적용되지 않는다.
         /// </summary>
-        private delegate Vector3 AdjustMoveDir(Vector2 moveDirection);
-        private AdjustMoveDir dl_changeVectorWithCamera;
+        private delegate Vector3 CalculateMoveDir(Vector2 moveDirection);
+        private CalculateMoveDir dl_CalculMoveDir;
                 
         /**
          * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
@@ -158,9 +158,9 @@ namespace Script
             playerRigidbody.velocity = new Vector3(playerRigidbody.velocity.x, 0, playerRigidbody.velocity.z);
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
             
-            animController.StartJump();
+            animController.JumpAnim_Start();
             
-            ChangeDelegate_Jump();
+            ChangeDelegate_UnInputable();
 
             // 도약 모션 들어가야함.
             // 체공 모션이 들어가야함.
@@ -168,13 +168,11 @@ namespace Script
 
         public void Jump_end() {
             isJumping = false;
-            
-            ChangeDelegate_Idle();
-            
-            animController.Land();
-            
+            ChangeDelegate_Inputable();
             dl_moveApply(moveInputVector);
             dl_sprintApply(isSprintInput);
+            
+            animController.JumpAnim_End();
         }
         //==============================================================
         #endregion
@@ -200,7 +198,7 @@ namespace Script
         private delegate void SprintApply(bool input);
         private SprintApply dl_sprintApply;
         
-        private void SprintApply_NotJump(bool input) {
+        private void SprintApply_Inputable(bool input) {
             if (isSprint == input) return;
             
             isSprint = input;
@@ -228,5 +226,10 @@ namespace Script
             sprintSpeed = ValueModifier.Instance.SprintSpeed;
         }
         #endif
+        
+        public void Attacked() {
+            // 인풋이 제한되어야하고, 넉백 되는 코드를 넣어야.
+            // 넉백이 다 끝나면 인풋도 다시 풀려야.
+        }
     }
 }
