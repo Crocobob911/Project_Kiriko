@@ -6,40 +6,39 @@ using UnityEngine.Serialization;
 namespace Script
 {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
-        
-        [SerializeField] private float defaultMoveSpeed = 5f;
-        private float moveSpeed;
-        private float sprintSpeed = 3f;
-        private bool isSprint = false;
-        private bool isSprintInput = false;
-        
-        private bool isJumping = false;
-        // private bool isMoveInputUnable = false;
+
+        #region Fields
         
         [SerializeField] private PlayerAnimController animController;
- 
         [SerializeField] private Transform playerBody;
         [SerializeField] private Transform cameraRoot;
         [SerializeField] private Rigidbody playerRigidbody;
         
+        
+        [SerializeField] private float defaultMoveSpeed = 5f;
+        private float moveSpeed;
         private bool isMoveInput;
         private Vector2 moveInputVector;
-        private Vector3 cameraForward;
-
         private Vector2 moveDir;
         private Vector3 currentMovingDir;
-        
-        /**
-         * 플레이어가 얼마나 빨리 도느냐
-         * 얼마나 민감하게 input에 반응하느냐
-         */
         [SerializeField] private float turnSpeed = 10f;
         
+        
+        private bool isJumping = false;
         [SerializeField] private float jumpForce = 5f;
-        // Value Modifier
+        // value modifier 추가해야함
+        
+        
+        private float sprintSpeed = 3f;
+        private bool isSprint = false;
+        private bool isSprintInput = false;
 
+        
+        private Vector3 cameraForward;
         private bool isCamLocked;
-
+        
+        #endregion
+        
         private void Awake() {
             cameraRoot = gameObject.transform.GetChild(0).GetComponent<Transform>();
             playerBody = gameObject.transform.GetChild(1).GetComponent<Transform>();
@@ -60,8 +59,8 @@ namespace Script
             Move();
         }
         
-#region Delegates Switch
-        
+        #region Delegates Switch
+        //==============================================================
         private void ChangeDelegate_Idle() {
             dl_moveApply = MoveApply_NotJump;
             dl_changeVectorWithCamera = ChangeMoveVectorWithCamera;
@@ -69,36 +68,55 @@ namespace Script
         }
 
         private void ChangeDelegate_Jump() {
-            dl_moveApply = vector => { };
-            dl_changeVectorWithCamera = DontChangeMoveVectorWithCamera;
-            dl_sprintApply = input => { };
+            dl_moveApply = vector => {};
+            dl_changeVectorWithCamera = vector => currentMovingDir;
+            dl_sprintApply = input => {};
         }
+        //==============================================================
+        #endregion
 
-#endregion
-
+        #region Move
+        //==============================================================
         /**
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
          */
         public void MoveInput(InputAction.CallbackContext context) {
             moveInputVector = context.ReadValue<Vector2>();
-            
             dl_moveApply(moveInputVector);
         }
         
-#region MoveApply Delegates
+        #region MoveApply Delegates
+        //--------------------------------------------------------------
         private delegate void MoveApply(Vector2 inputVector);
         private MoveApply dl_moveApply;
-        
         
         private void MoveApply_NotJump(Vector2 inputVector) {
             moveDir = inputVector;
             isMoveInput = moveInputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveDir);
         }
-#endregion
+        //--------------------------------------------------------------
+        #endregion
 
-#region Change Vector With Camera Delegates
-        
+        /// <summary>
+        /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
+        /// Update 함수에서 호출.
+        /// 점프 중에는 WASD 인풋에 의한 움직임을 제한함.
+        /// </summary>
+        private void Move() {
+            if(!isMoveInput) return;
+
+            currentMovingDir = dl_changeVectorWithCamera(moveDir);
+                    
+            // 카메라 잠금 상태에 따라 player 객체의 전방 변경
+            // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
+            playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
+                    
+            transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
+        }
+
+        #region Change Vector With Camera Delegates
+        //--------------------------------------------------------------
         /// <summary>
         /// 움직이는 동안, 카메라 방향에 따라 WASD의 방향이 바뀐다.
         /// 점프 중엔 적용되지 않는다.
@@ -112,35 +130,27 @@ namespace Script
         private Vector3 ChangeMoveVectorWithCamera(Vector2 moveDirection) { 
             cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z); 
             var cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
-            return cameraForward * moveDirection.y + cameraSide * moveDirection.x;
-        }
 
-        private Vector3 DontChangeMoveVectorWithCamera(Vector2 moveDirection) {
-            var playerForward = new Vector3(playerBody.forward.x, 0f, playerBody.forward.z);
-            var playerSide = new Vector3(playerBody.right.x, 0f, playerBody.right.z); 
-            return playerForward * moveDirection.y + playerSide * moveDirection.x;
-        }
-#endregion
-
-        /// <summary>
-        /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
-        /// Update 함수에서 호출
-        /// 점프 중에는 WASD 인풋에 의한 움직임을 제한함.
-        /// </summary>
-        private void Move() {
-            if(!isMoveInput) return;
+            var dir = cameraForward * moveDirection.y + cameraSide * moveDirection.x;
             
-            currentMovingDir = LerpMoveDirection(
-                dl_changeVectorWithCamera(moveDir), currentMovingDir);
-            
-            // 카메라 잠금 상태에 따라 player 객체의 전방 변경
-            // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
-            playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
-            
-            transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
+            return LerpMoveDirection(dir, currentMovingDir);
         }
+        
+        private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
+            // 플레이어 이동 Lerp
+            if ((newMoveDir - currentMoveDir).magnitude >= 0.001f) {
+                return Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime);
+            }
+            return newMoveDir;
+        }
+        //--------------------------------------------------------------
+        #endregion
+        
+        //==============================================================
+        #endregion
 
-
+        #region Jump
+        //==============================================================
         public void Jump(InputAction.CallbackContext context) {
             if (!context.started || isJumping) return;
 
@@ -166,21 +176,11 @@ namespace Script
             dl_moveApply(moveInputVector);
             dl_sprintApply(isSprintInput);
         }
+        //==============================================================
+        #endregion
 
-        private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
-            // 플레이어 이동 Lerp
-            if ((newMoveDir - currentMoveDir).magnitude >= 0.001f) {
-                return Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime);
-            }
-            return newMoveDir;
-        }
-
-        public void SetCamLock(bool isLocked)
-        {
-            isCamLocked = isLocked;
-            animController.SetIsCamLocked(isLocked);
-        }
-
+        #region Sprint
+        //==============================================================
         // ReSharper disable Unity.PerformanceAnalysis
         public void SprintInput(InputAction.CallbackContext context)       // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         {
@@ -194,10 +194,9 @@ namespace Script
             
             dl_sprintApply(isSprintInput);
         }
-
         
-#region Sprint Apply Delegates
-        
+        #region Sprint Apply Delegates
+        //--------------------------------------------------------------
         private delegate void SprintApply(bool input);
         private SprintApply dl_sprintApply;
         
@@ -211,10 +210,18 @@ namespace Script
             //---나중에 스태미너 감소 구현해야함
             //---나중에 달리기 애니메이션 넣어야함
         }
+        //--------------------------------------------------------------
+        #endregion
         
-#endregion
-
-
+        //==============================================================
+        #endregion
+        
+        public void SetCamLock(bool isLocked)
+        {
+            isCamLocked = isLocked;
+            animController.SetIsCamLocked(isLocked);
+        }
+        
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
