@@ -65,7 +65,8 @@ namespace Script {
             // 착지 모션 재생 들어가야함.
         }
 
-        public void AttackedAnim_Start() {
+        public void KnockBackAnim_Start() {
+            Debug.Log("[PlayerAnimController]   KnockBackAnim_Start");
             // 피격 모션 재생 들어가야함.
         }
     
@@ -73,6 +74,11 @@ namespace Script {
     
         public void SetIsCamLocked(bool isCamLocked) {
             animator.SetBool(animIsCamLocked, isCamLocked);
+        }
+
+        public void Avoid() {
+            Debug.Log("[PlayerAnimController]   Avoid Animation.");
+            // 회피 모션 재생 들어가야함.
         }
     }
 }

@@ -220,16 +220,37 @@ namespace Script
             animController.SetIsCamLocked(isLocked);
         }
         
-        #if UNITY_EDITOR
+        
+        public void KnockBackAction() {
+            Debug.Log("Knock-Back Action");
+            ChangeDelegate_UnInputable();
+            // 인풋이 제한되어야하고, 넉백 되는 코드를 넣어야.
+            // 넉백이 다 끝나면 인풋도 다시 풀려야.
+            KnockBackInit();
+        }
+
+        private void KnockBackInit() {
+            ChangeDelegate_Inputable();
+        }
+
+        public void AvoidAction() {
+            Debug.Log("[PlayerMoveController]   Avoid Action");
+            ChangeDelegate_UnInputable();
+            // 인풋도 제한되어야함.
+            // 뒤로 이동하는 로직이 들어가야.
+            AvoidInit();
+        }
+
+        private void AvoidInit() {
+            ChangeDelegate_Inputable();
+        }
+        
+        
+#if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
             sprintSpeed = ValueModifier.Instance.SprintSpeed;
         }
-        #endif
-        
-        public void Attacked() {
-            // 인풋이 제한되어야하고, 넉백 되는 코드를 넣어야.
-            // 넉백이 다 끝나면 인풋도 다시 풀려야.
-        }
+#endif
     }
 }
