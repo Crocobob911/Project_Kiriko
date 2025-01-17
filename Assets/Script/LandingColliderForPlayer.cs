@@ -9,7 +9,7 @@ public class LandingColliderForPlayer : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other){
         if (!other.transform.CompareTag("Ground")) {
-            player.Land();
+            player.Jump_end();
         }
     }
 }

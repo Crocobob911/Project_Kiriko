@@ -14,7 +14,7 @@ namespace Script
         private bool isSprintInput = false;
         
         private bool isJumping = false;
-        private bool isMoveInputUnable = false;
+        // private bool isMoveInputUnable = false;
         
         [SerializeField] private PlayerAnimController animController;
  
@@ -25,7 +25,6 @@ namespace Script
         private bool isMoveInput;
         private Vector2 moveInputVector;
         private Vector3 cameraForward;
-        private Vector3 cameraSide;
 
         private Vector2 moveDir;
         private Vector3 currentMovingDir;
@@ -47,8 +46,10 @@ namespace Script
             playerRigidbody = gameObject.transform.GetComponent<Rigidbody>();
             animController = transform.GetComponent<PlayerAnimController>();
         }
-        
+
         private void Start() {
+            ChangeDelegate_Idle();
+
 #if UNITY_EDITOR
             ValueModifier.Instance.AddSubscriber(this);
             ValueModifierUpdated();
@@ -58,6 +59,22 @@ namespace Script
         private void Update() {
             Move();
         }
+        
+#region Delegates Switch
+        
+        private void ChangeDelegate_Idle() {
+            dl_moveApply = MoveApply_NotJump;
+            dl_changeVectorWithCamera = ChangeMoveVectorWithCamera;
+            dl_sprintApply = SprintApply_NotJump;
+        }
+
+        private void ChangeDelegate_Jump() {
+            dl_moveApply = vector => { };
+            dl_changeVectorWithCamera = DontChangeMoveVectorWithCamera;
+            dl_sprintApply = input => { };
+        }
+
+#endregion
 
         /**
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
@@ -65,33 +82,65 @@ namespace Script
         public void MoveInput(InputAction.CallbackContext context) {
             moveInputVector = context.ReadValue<Vector2>();
             
-            MoveApply(moveInputVector);
+            dl_moveApply(moveInputVector);
         }
-
-        private void MoveApply(Vector2 inputVector) {
-            if (isMoveInputUnable) return;
-            
+        
+#region MoveApply Delegates
+        private delegate void MoveApply(Vector2 inputVector);
+        private MoveApply dl_moveApply;
+        
+        
+        private void MoveApply_NotJump(Vector2 inputVector) {
             moveDir = inputVector;
             isMoveInput = moveInputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveDir);
         }
+#endregion
+
+#region Change Vector With Camera Delegates
         
+        /// <summary>
+        /// 움직이는 동안, 카메라 방향에 따라 WASD의 방향이 바뀐다.
+        /// 점프 중엔 적용되지 않는다.
+        /// </summary>
+        private delegate Vector3 AdjustMoveDir(Vector2 moveDirection);
+        private AdjustMoveDir dl_changeVectorWithCamera;
+                
+        /**
+         * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
+         */
+        private Vector3 ChangeMoveVectorWithCamera(Vector2 moveDirection) { 
+            cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z); 
+            var cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
+            return cameraForward * moveDirection.y + cameraSide * moveDirection.x;
+        }
+
+        private Vector3 DontChangeMoveVectorWithCamera(Vector2 moveDirection) {
+            var playerForward = new Vector3(playerBody.forward.x, 0f, playerBody.forward.z);
+            var playerSide = new Vector3(playerBody.right.x, 0f, playerBody.right.z); 
+            return playerForward * moveDirection.y + playerSide * moveDirection.x;
+        }
+#endregion
+
         /// <summary>
         /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
         /// Update 함수에서 호출
+        /// 점프 중에는 WASD 인풋에 의한 움직임을 제한함.
         /// </summary>
         private void Move() {
             if(!isMoveInput) return;
+            
             currentMovingDir = LerpMoveDirection(
-                ChangeMoveVectorWithCamera(moveDir), currentMovingDir);
-
+                dl_changeVectorWithCamera(moveDir), currentMovingDir);
+            
             // 카메라 잠금 상태에 따라 player 객체의 전방 변경
             // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
             playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
             
             transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
         }
-        
+
+
         public void Jump(InputAction.CallbackContext context) {
             if (!context.started || isJumping) return;
 
@@ -100,39 +149,24 @@ namespace Script
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
             
             animController.StartJump();
-            isMoveInputUnable = true;
             
+            ChangeDelegate_Jump();
+
             // 도약 모션 들어가야함.
             // 체공 모션이 들어가야함.
-            
-            // 1. 공중에 있는 동안 Input 제한되어야.
-            // 2. 땅에 착지하면 Input 다시 가능한 로직 구현해야함.
         }
 
-        public void Land() {
+        public void Jump_end() {
             isJumping = false;
-            isMoveInputUnable = false;
+            
+            ChangeDelegate_Idle();
             
             animController.Land();
             
-            MoveApply(moveInputVector);
-            SprintApply(isSprintInput);
+            dl_moveApply(moveInputVector);
+            dl_sprintApply(isSprintInput);
         }
 
-
-        /**
-         * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
-         */
-        private Vector3 ChangeMoveVectorWithCamera(Vector2 moveDirection) {
-            if (isMoveInputUnable) {
-                return playerBody.forward * moveDirection;
-            }
-            
-            cameraForward = new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z);
-            cameraSide = new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z);
-            return cameraForward * moveDirection.y + cameraSide * moveDirection.x;
-        }
-        
         private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
             // 플레이어 이동 Lerp
             if ((newMoveDir - currentMoveDir).magnitude >= 0.001f) {
@@ -158,11 +192,17 @@ namespace Script
             
             Debug.Log("SprintInput : " + isSprintInput);
             
-            SprintApply(isSprintInput);
+            dl_sprintApply(isSprintInput);
         }
 
-        private void SprintApply(bool input) {
-            if (isMoveInputUnable || isSprint == input) return;
+        
+#region Sprint Apply Delegates
+        
+        private delegate void SprintApply(bool input);
+        private SprintApply dl_sprintApply;
+        
+        private void SprintApply_NotJump(bool input) {
+            if (isSprint == input) return;
             
             isSprint = input;
             moveSpeed = isSprint ? defaultMoveSpeed + sprintSpeed : defaultMoveSpeed;
@@ -172,7 +212,9 @@ namespace Script
             //---나중에 달리기 애니메이션 넣어야함
         }
         
-        
+#endregion
+
+
         #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             moveSpeed = ValueModifier.Instance.MoveSpeed;
