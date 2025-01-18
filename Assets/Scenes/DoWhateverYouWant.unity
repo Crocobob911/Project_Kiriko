@@ -966,6 +966,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 2131187804}
+  successTime: 0.6
 --- !u!136 &966488875
 CapsuleCollider:
   m_ObjectHideFlags: 0

@@ -10,9 +10,9 @@ namespace Script {
         private readonly int animMoveRight = Animator.StringToHash("moveRight");
         private readonly int animIsCamLocked = Animator.StringToHash("isCamLocked");
         private readonly int animIsOnAir = Animator.StringToHash("isOnAir");
-        private readonly int animIsAvoid = Animator.StringToHash("isAvoid");
+        private readonly int animAvoid = Animator.StringToHash("avoid");
         private readonly int animIsJump = Animator.StringToHash("isJump");
-        private readonly int animIsKnockBack = Animator.StringToHash("isKnockBack");
+        private readonly int animKnockBack = Animator.StringToHash("knockBack");
 
         [SerializeField]private Animator animator;
     
@@ -70,22 +70,20 @@ namespace Script {
         
 
         public void KnockBackAnim_Start() {
-            animator.SetBool(animIsKnockBack, true);
-            Invoke(nameof(KnockBackAnim_End), 0.1f);
+            animator.SetTrigger(animKnockBack);
         }
 
         private void KnockBackAnim_End() {
-            animator.SetBool(animIsKnockBack, false);
+            // animator.SetBool(animKnockBack, false);
         }
 
 
         public void Avoid_Start() {
-            animator.SetBool(animIsAvoid, true);
-            Invoke(nameof(Avoid_End), 0.2f);
+            animator.SetTrigger(animAvoid);
         }
 
         private void Avoid_End() {
-            animator.SetBool(animIsAvoid, false);
+            // animator.SetBool(animAvoid, false);
         }
         
                 

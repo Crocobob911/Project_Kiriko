@@ -5,7 +5,7 @@ namespace Script {
         [SerializeField] private Player player;
 
         private float time = 0;
-        private float successTime = 2f;
+        [SerializeField] private float successTime = 0.6f;
         
         void Start()
         {
@@ -13,7 +13,7 @@ namespace Script {
         }
 
         void OnEnable() {
-            Debug.Log("[AvoidCollider]  OnEnable.");
+            // Debug.Log("[AvoidCollider]  OnEnable.");
             time = 0f;
         }
 
