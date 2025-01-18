@@ -38,7 +38,7 @@ namespace Script {
         public void Attacked(int damage) { 
             Hp -= damage;
             Debug.Log("[Player] | Player Attacked. Hp : " + Hp);
-            moveController.KnockBackAction();
+            moveController.KnockBack_Start();
             animController.KnockBackAnim_Start();
         }
 
@@ -49,10 +49,10 @@ namespace Script {
             
             // isAvoiding = true;
             
-            Debug.Log("[Player] Avoid Activated.");
+            // Debug.Log("[Player] Avoid Activated.");
             AvoidColliderOnReady();
-            moveController.AvoidAction();
-            animController.Avoid();
+            moveController.Avoid_Start();
+            animController.Avoid_Start();
         }
 
         private void AvoidColliderOnReady() {

@@ -8,6 +8,9 @@ namespace Script
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
 
         #region Fields
+
+        // private IPlayerMoveState[] states; 
+        
         
         [SerializeField] private PlayerAnimController animController;
         [SerializeField] private Transform playerBody;
@@ -15,10 +18,12 @@ namespace Script
         [SerializeField] private Rigidbody playerRigidbody;
         
         
+        
+        
         [SerializeField] private float defaultMoveSpeed = 5f;
         private float moveSpeed;
         private bool isMoveInput;
-        private Vector2 moveInputVector;
+        private Vector2 inputMoveVector;
         private Vector2 moveDir;
         private Vector3 currentMovingDir;
         [SerializeField] private float turnSpeed = 10f;
@@ -56,13 +61,14 @@ namespace Script
         }
 
         private void Update() {
-            Move();
+            dl_move();
         }
         
         #region Delegates Switch
         //==============================================================
         private void ChangeDelegate_Inputable() {
             dl_moveApply = MoveApply_Inputable;
+            dl_move = Move_Idle;
             dl_CalculMoveDir = ChangeMoveVectorWithCamera;
             dl_sprintApply = SprintApply_Inputable;
         }
@@ -81,8 +87,8 @@ namespace Script
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
          */
         public void MoveInput(InputAction.CallbackContext context) {
-            moveInputVector = context.ReadValue<Vector2>();
-            dl_moveApply(moveInputVector);
+            inputMoveVector = context.ReadValue<Vector2>();
+            dl_moveApply(inputMoveVector);
         }
         
         #region MoveApply Delegates
@@ -92,22 +98,27 @@ namespace Script
         
         private void MoveApply_Inputable(Vector2 inputVector) {
             moveDir = inputVector;
-            isMoveInput = moveInputVector != Vector2.zero;
+            isMoveInput = inputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveDir);
         }
         //--------------------------------------------------------------
         #endregion
-
+        
+        #region Move
+        //--------------------------------------------------------------
+        private delegate void Move();
+        private Move dl_move;
+        
         /// <summary>
         /// WASD 인풋이 눌리고 있는 동안 Player를 움직이게 해줌.
         /// Update 함수에서 호출.
         /// 점프 중에는 WASD 인풋에 의한 움직임을 제한함.
         /// </summary>
-        private void Move() {
+        private void Move_Idle() {
             if(!isMoveInput) return;
 
             currentMovingDir = dl_CalculMoveDir(moveDir);
-                    
+            
             // 카메라 잠금 상태에 따라 player 객체의 전방 변경
             // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
             playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
@@ -115,15 +126,28 @@ namespace Script
             transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
         }
 
+        private void Move_KnockBack() {
+            // 와 개 조잡한데 이거 맞나
+            transform.position -= currentMovingDir * ((moveSpeed - 2f) * Time.deltaTime);
+        }
+
+        private void Move_Avoid() {
+            transform.position -= currentMovingDir * (moveSpeed * Time.deltaTime);
+        }
+        
+        //--------------------------------------------------------------
+        #endregion
+        
         #region Change Vector With Camera Delegates
         //--------------------------------------------------------------
+        
         /// <summary>
         /// 움직이는 동안, 카메라 방향에 따라 WASD의 방향이 바뀐다.
         /// 점프 중엔 적용되지 않는다.
         /// </summary>
         private delegate Vector3 CalculateMoveDir(Vector2 moveDirection);
         private CalculateMoveDir dl_CalculMoveDir;
-                
+        
         /**
          * 카메라의 방향을 플레이어의 이동 방향에 반영해줌
          */
@@ -138,10 +162,9 @@ namespace Script
         
         private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
             // 플레이어 이동 Lerp
-            if ((newMoveDir - currentMoveDir).magnitude >= 0.001f) {
-                return Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime);
-            }
-            return newMoveDir;
+            return (newMoveDir - currentMoveDir).magnitude >= 0.001f 
+                ? Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime) 
+                : newMoveDir;
         }
         //--------------------------------------------------------------
         #endregion
@@ -169,7 +192,7 @@ namespace Script
         public void Jump_end() {
             isJumping = false;
             ChangeDelegate_Inputable();
-            dl_moveApply(moveInputVector);
+            dl_moveApply(inputMoveVector);
             dl_sprintApply(isSprintInput);
             
             animController.JumpAnim_End();
@@ -221,27 +244,29 @@ namespace Script
         }
         
         
-        public void KnockBackAction() {
-            Debug.Log("Knock-Back Action");
+        public void KnockBack_Start() {
             ChangeDelegate_UnInputable();
-            // 인풋이 제한되어야하고, 넉백 되는 코드를 넣어야.
-            // 넉백이 다 끝나면 인풋도 다시 풀려야.
-            KnockBackInit();
+            dl_move = Move_KnockBack;
+
+            Invoke(nameof(KnockBack_End), 0.6f);
+            
+            // 넉백 중엔 무적 판정이 있어야하진 않을까?
         }
 
-        private void KnockBackInit() {
+        private void KnockBack_End() {
+
             ChangeDelegate_Inputable();
         }
 
-        public void AvoidAction() {
-            Debug.Log("[PlayerMoveController]   Avoid Action");
+        public void Avoid_Start() {
             ChangeDelegate_UnInputable();
-            // 인풋도 제한되어야함.
-            // 뒤로 이동하는 로직이 들어가야.
-            AvoidInit();
+            dl_move = Move_Avoid;
+
+            Invoke(nameof(Avoid_End), 0.5f);
         }
 
-        private void AvoidInit() {
+        private void Avoid_End() {
+            currentMovingDir = Vector3.zero;
             ChangeDelegate_Inputable();
         }
         
@@ -253,4 +278,97 @@ namespace Script
         }
 #endif
     }
+
+    
+    /*
+    public interface IPlayerMoveState {
+        public void MoveApply(Vector2 moveVector);
+        public void Move();
+        public Vector3 CalculMoveDir(Vector2 moveDirection);
+        public void SprintApply(bool input);
+    }
+
+    public class IdleState : IPlayerMoveState {
+        public void MoveApply(Vector2 inputVector) {
+            moveDir = inputVector;
+            isMoveInput = inputVector != Vector2.zero;
+            animController.SetMoveAnimDirection(moveDir);
+        }
+
+        public void Move() {
+            if(!isMoveInput) return;
+
+            currentMovingDir = dl_CalculMoveDir(moveDir);
+            
+            // 카메라 잠금 상태에 따라 player 객체의 전방 변경
+            // 잠김 = 록온 대상을 향해 | 안 잠김 = 이동하는 방향을 향해
+            playerBody.forward = isCamLocked ? cameraForward : currentMovingDir;
+                    
+            transform.position += currentMovingDir * (moveSpeed * Time.deltaTime); // 이동
+        }
+
+        public Vector3 CalculMoveDir(Vector2 moveDirection) {
+            throw new System.NotImplementedException();
+        }
+
+        public void SprintApply(bool input) {
+            throw new System.NotImplementedException();
+        }
+    }
+
+    public class JumpState : IPlayerMoveState {
+        public void MoveApply(Vector2 moveVector) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Move() {
+            throw new System.NotImplementedException();
+        }
+
+        public Vector3 CalculMoveDir(Vector2 moveDirection) {
+            throw new System.NotImplementedException();
+        }
+
+        public void SprintApply(bool input) {
+            throw new System.NotImplementedException();
+        }
+    }
+
+    public class KnockBackState : IPlayerMoveState {
+        public void MoveApply(Vector2 moveVector) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Move() {
+            // 와 개 조잡한데 이거 맞나
+            transform.position -= currentMovingDir * ((moveSpeed - 2f) * Time.deltaTime);
+        }
+
+        public Vector3 CalculMoveDir(Vector2 moveDirection) {
+            throw new System.NotImplementedException();
+        }
+
+        public void SprintApply(bool input) {
+            throw new System.NotImplementedException();
+        }
+    }
+
+    public class AvoidState : IPlayerMoveState {
+        public void MoveApply(Vector2 moveVector) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Move() {
+            throw new System.NotImplementedException();
+        }
+
+        public Vector3 CalculMoveDir(Vector2 moveDirection) {
+            throw new System.NotImplementedException();
+        }
+
+        public void SprintApply(bool input) {
+            throw new System.NotImplementedException();
+        }
+    }
+*/
 }

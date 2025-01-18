@@ -10,6 +10,9 @@ namespace Script {
         private readonly int animMoveRight = Animator.StringToHash("moveRight");
         private readonly int animIsCamLocked = Animator.StringToHash("isCamLocked");
         private readonly int animIsOnAir = Animator.StringToHash("isOnAir");
+        private readonly int animIsAvoid = Animator.StringToHash("isAvoid");
+        private readonly int animIsJump = Animator.StringToHash("isJump");
+        private readonly int animIsKnockBack = Animator.StringToHash("isKnockBack");
 
         [SerializeField]private Animator animator;
     
@@ -64,21 +67,30 @@ namespace Script {
         
             // 착지 모션 재생 들어가야함.
         }
+        
 
         public void KnockBackAnim_Start() {
-            Debug.Log("[PlayerAnimController]   KnockBackAnim_Start");
-            // 피격 모션 재생 들어가야함.
-        }
-    
-    
-    
-        public void SetIsCamLocked(bool isCamLocked) {
-            animator.SetBool(animIsCamLocked, isCamLocked);
+            animator.SetBool(animIsKnockBack, true);
+            Invoke(nameof(KnockBackAnim_End), 0.1f);
         }
 
-        public void Avoid() {
-            Debug.Log("[PlayerAnimController]   Avoid Animation.");
-            // 회피 모션 재생 들어가야함.
+        private void KnockBackAnim_End() {
+            animator.SetBool(animIsKnockBack, false);
+        }
+
+
+        public void Avoid_Start() {
+            animator.SetBool(animIsAvoid, true);
+            Invoke(nameof(Avoid_End), 0.2f);
+        }
+
+        private void Avoid_End() {
+            animator.SetBool(animIsAvoid, false);
+        }
+        
+                
+        public void SetIsCamLocked(bool isCamLocked) {
+            animator.SetBool(animIsCamLocked, isCamLocked);
         }
     }
 }
