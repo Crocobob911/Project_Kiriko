@@ -5,19 +5,19 @@ namespace Script {
         [SerializeField] private Player player;
 
         private float time = 0;
-        [SerializeField] private float successTime = 0.6f;
+        [SerializeField] private float successTime = 0.39f;
+        // value Modifier
         
-        void Start()
+        private void Start()
         {
             gameObject.SetActive(false);
         }
 
-        void OnEnable() {
-            // Debug.Log("[AvoidCollider]  OnEnable.");
+        private void OnEnable() {
             time = 0f;
         }
 
-        void Update()
+        private void Update()
         {
             time += Time.deltaTime;
             if(time >= successTime) AvoidFail();

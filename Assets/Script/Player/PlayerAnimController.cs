@@ -11,7 +11,6 @@ namespace Script {
         private readonly int animIsCamLocked = Animator.StringToHash("isCamLocked");
         private readonly int animIsOnAir = Animator.StringToHash("isOnAir");
         private readonly int animAvoid = Animator.StringToHash("avoid");
-        private readonly int animIsJump = Animator.StringToHash("isJump");
         private readonly int animKnockBack = Animator.StringToHash("knockBack");
 
         [SerializeField]private Animator animator;
@@ -24,13 +23,13 @@ namespace Script {
             newDirection = Vector2.zero;
         }
     
-        void Start() {
+        private void Start() {
             animator = transform.GetChild(1).GetComponent<Animator>();
         
             Init();
         }
     
-        void Update() {
+        private void Update() {
             SetPlayerAnim();
         }
     
@@ -49,10 +48,9 @@ namespace Script {
         }
 
         private void LerpMoveAnimDirection() {
-            if ((currentDirection - newDirection).magnitude >= 0.001f) {
-                currentDirection = Vector2.Lerp(currentDirection, newDirection, 5f * Time.deltaTime);
-            }
-            else currentDirection = newDirection;
+            currentDirection = (currentDirection - newDirection).magnitude >= 0.01f 
+                ? Vector2.Lerp(currentDirection, newDirection, 5f * Time.deltaTime) 
+                : newDirection;
         }
 
         public void JumpAnim_Start() {
@@ -60,33 +58,26 @@ namespace Script {
             SetMoveAnimDirection(Vector2.zero);
         
             // 도약 모션 재생 들어가야함.
+            // 그 뒤에 체공 모션으로 자연스레 넘어갸야함.
+            
+            // 카메라 락온, 락온 아님에 따라 다른 애니 출력해줘야함.
         }
 
         public void JumpAnim_End() {
             animator.SetBool(animIsOnAir, false);
-        
             // 착지 모션 재생 들어가야함.
         }
         
-
         public void KnockBackAnim_Start() {
             animator.SetTrigger(animKnockBack);
         }
-
-        private void KnockBackAnim_End() {
-            // animator.SetBool(animKnockBack, false);
-        }
-
-
+        
+        
         public void Avoid_Start() {
             animator.SetTrigger(animAvoid);
         }
-
-        private void Avoid_End() {
-            // animator.SetBool(animAvoid, false);
-        }
         
-                
+        
         public void SetIsCamLocked(bool isCamLocked) {
             animator.SetBool(animIsCamLocked, isCamLocked);
         }

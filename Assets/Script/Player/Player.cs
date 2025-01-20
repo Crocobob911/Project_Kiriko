@@ -9,35 +9,66 @@ namespace Script {
         [SerializeField] private GameObject avoidCollider;
 
         private bool isAvoiding;
+        private bool isJumping;
+        
+        [SerializeField] private int avoidStamina = 10;
+        // value Modifier
+        [SerializeField] private int jumpStamina = 10;
+        // value Modifier
+
+        private int stamina;
+        private int Stamina {
+            get => stamina;
+            set {
+                if(value > maxStamina) stamina = maxStamina;
+                else if(value < 0) stamina = 0;
+                stamina = value;
+                Debug.Log("[Player] Stamina : " + stamina);
+            }
+        }
+        
+        private int maxStamina = 100;
+        public int MaxStamina {
+            get => maxStamina;
+            set => maxStamina = (value < 0) ? 0 : value; 
+        }
         
         
         private int maxHp = 300;
         public int MaxHp {
             get => maxHp;
-            set {
-                if(value < 0) maxHp = 0;
-                else maxHp = value;
-            }
+            set => maxHp = (value <= 0) ? 0 : value; 
         }
 
         private int hp;
-        public int Hp {
+
+        private int Hp {
             get => hp;
             set {
-                if (value > maxHp) hp = maxHp;
+                if (value >= maxHp) hp = maxHp;
                 else if (value < 0) hp = 0;
                 else hp = value;
+                
+                Debug.Log("[Player] HP : " + hp);
             }
         }
 
+        
         private void Start() {
-            hp = maxHp;
-            // isAvoiding = false;
+            Init();
         }
+        
+
+        private void Init() {
+            Hp = MaxHp;
+            Stamina = MaxStamina;
+            isAvoiding = false;
+            isJumping = false;
+        }
+        
 
         public void Attacked(int damage) { 
             Hp -= damage;
-            Debug.Log("[Player] | Player Attacked. Hp : " + Hp);
             moveController.KnockBack_Start();
             animController.KnockBackAnim_Start();
         }
@@ -47,9 +78,9 @@ namespace Script {
         public void ActiveAvoid(InputAction.CallbackContext context) {
             if (!context.started || isAvoiding) return;
             
-            // isAvoiding = true;
+            isAvoiding = true;
+            Stamina -= avoidStamina;
             
-            // Debug.Log("[Player] Avoid Activated.");
             AvoidColliderOnReady();
             moveController.Avoid_Start();
             animController.Avoid_Start();
@@ -62,12 +93,36 @@ namespace Script {
 
         public void AvoidSuccess(float time) {
             // 회피 성공
+            isAvoiding = false;
+            moveController.Avoid_End();
             Debug.Log("[Player] Success Avoid. Time : " + time + "s.");
         }
 
         public void AvoidFail() {
             // 회피 실패
+            isAvoiding = false;
+            moveController.Avoid_End();
             Debug.Log("[Player] Avoid Failed.");
+        }
+        //==============================================================
+        #endregion
+
+
+        #region Jump
+        //==============================================================
+        public void Jump(InputAction.CallbackContext context) {
+            if (!context.started || isJumping) return;
+            
+            isJumping = true;
+            Stamina -= jumpStamina;
+            moveController.Jump();
+            animController.JumpAnim_Start();
+        }
+
+        public void Jump_End() {
+            isJumping = false;
+            moveController.Jump_End();
+            animController.JumpAnim_End();
         }
         //==============================================================
         #endregion

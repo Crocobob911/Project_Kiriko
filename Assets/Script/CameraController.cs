@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Cinemachine;
 using UnityEngine;
@@ -57,23 +58,28 @@ namespace Script {
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression")]
         public void TriggerCamLock(InputAction.CallbackContext context) {
             if (!context.started) return;
             
-            if (isCamLocked) { // 록온을 풀어야 함.
-                isCamLocked = false;
-                camCal.SetLockedObj(null);
-                camCal = unLockedCam;
-                playerController.SetCamLock(false);
-            }
-            // ReSharper disable once AssignmentInConditionalExpression
-            else if (lockedObj = FindObjectToLock()) { // 록온을 걸어야 함.
-                isCamLocked = true;
-                camCal = lockedCam;
-                camCal.SetLockedObj(lockedObj);
-                playerController.SetCamLock(true);
-            }
-            Debug.Log("isCamLocked : " + isCamLocked);
+            if (isCamLocked) SetCamLockOff();
+            else if (lockedObj = FindObjectToLock()) SetCamLockOn();
+            
+            // Debug.Log("[CameraController] isCamLocked : " + isCamLocked);
+        }
+
+        private void SetCamLockOn() {
+            isCamLocked = true;
+            camCal = lockedCam;
+            camCal.SetLockedObj(lockedObj);
+            playerController.SetCamLock(true);
+        }
+
+        private void SetCamLockOff() {
+            isCamLocked = false;
+            camCal.SetLockedObj(null);
+            camCal = unLockedCam;
+            playerController.SetCamLock(false);
         }
 
         // RaySphere로 바라보고 있는 곳에 있는 <Enemy> GameObject를 찾아 반홤.
@@ -91,7 +97,9 @@ namespace Script {
 
         // 스크롤 드르륵 -> 카메라 줌인 줌아웃
         public void ZoomCamera(InputAction.CallbackContext context) {
-            componentBase.CameraDistance = Mathf.Clamp(componentBase.CameraDistance - context.ReadValue<float>() * zoomSpeed * Time.deltaTime, zoomMin, zoomMax);
+            componentBase.CameraDistance 
+                = Mathf.Clamp(componentBase.CameraDistance - context.ReadValue<float>() * zoomSpeed * Time.deltaTime, 
+                    zoomMin, zoomMax);
         }
 
 
@@ -133,9 +141,8 @@ namespace Script {
     // 카메라가 자유로울 때 카메라의 각도를 계산해줄 오브젝트
     public class UnLockedCamCalculator : ICameraRotationCalculator, IValueModifierObserver {
         // float sensitivity = 0.2f; // 얘를 사용자가 설정할 수 있게 해야할텐데
-        float camAngleMaximum = 40f;
-        float camAngleMinimum = 300f;
-        private float camAngleXadjusted;
+        private float camAngleMaximum = 40f;
+        private float camAngleMinimum = 300f;
         private readonly Transform cameraRoot;
         private Vector3 camAngle;
 
@@ -146,18 +153,19 @@ namespace Script {
         // 마우스 움직임 Vector를 Input 받아서 Camera의 이동 거리 계산
         // 마우스가 자유롭게 움직일 때 사용됨
         public Quaternion SetCameraRotation(Vector2 mouseMoveDelta) {
+            var camAngleXadjusted 
+                = cameraRoot.rotation.eulerAngles.x - mouseMoveDelta.y;
             
-            camAngle = cameraRoot.rotation.eulerAngles;
-
-            camAngleXadjusted = camAngle.x - mouseMoveDelta.y;
-            camAngleXadjusted =
-                camAngleXadjusted < 180f
-                    ? Mathf.Clamp(camAngleXadjusted, -1f, camAngleMaximum)
+            // 카메라 위아래 각도 제한
+            camAngleXadjusted = camAngleXadjusted < 180f ? 
+                    Mathf.Clamp(camAngleXadjusted, -1f, camAngleMaximum)
                     : Mathf.Clamp(camAngleXadjusted, camAngleMinimum, 361f);
 
             return Quaternion.Euler(camAngleXadjusted,
-                camAngle.y + mouseMoveDelta.x, camAngle.z);
+                cameraRoot.rotation.eulerAngles.y + mouseMoveDelta.x,
+                cameraRoot.rotation.eulerAngles.z);
         }
+        
 #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             camAngleMaximum = ValueModifier.Instance.CamAngleMaximum;
@@ -165,6 +173,6 @@ namespace Script {
         }
 #endif
 
-        public void SetLockedObj(GameObject obj) { }
+        public void SetLockedObj(GameObject obj) {}
     }
 }

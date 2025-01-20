@@ -283,8 +283,8 @@ MonoBehaviour:
     m_ActionName: Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2131187803}
-        m_TargetAssemblyTypeName: Script.PlayerMoveController, Assembly-CSharp
+      - m_Target: {fileID: 2131187804}
+        m_TargetAssemblyTypeName: Script.Player, Assembly-CSharp
         m_MethodName: Jump
         m_Mode: 0
         m_Arguments:
@@ -986,8 +986,8 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1.8
+  m_Radius: 0.6
+  m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
 --- !u!4 &966488876
@@ -1292,7 +1292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3efabfc0a9328dc49bb393d4649d1983, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 2131187803}
+  player: {fileID: 2131187804}
 --- !u!65 &2040104432
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1599,6 +1599,8 @@ MonoBehaviour:
   animController: {fileID: 2131187801}
   moveController: {fileID: 2131187803}
   avoidCollider: {fileID: 966488873}
+  avoidStamina: 10
+  jumpStamina: 10
 --- !u!1001 &1025817842909334761
 PrefabInstance:
   m_ObjectHideFlags: 0

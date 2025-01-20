@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Script {
     public class TempWeapon : MonoBehaviour {
 
-        public int speed = 1;
+        public int speed;
         
         
         private void Update() {
