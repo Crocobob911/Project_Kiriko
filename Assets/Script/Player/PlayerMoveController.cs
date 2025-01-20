@@ -138,12 +138,12 @@ namespace Script {
         }
         
         private void Move_Avoid() {
-            transform.position += currentMovingDir * ((moveSpeed + 5f) * Time.deltaTime);
+            transform.position += currentMovingDir.normalized * ((moveSpeed + 3.6f) * Time.deltaTime);
         }
 
         private void Move_Avoid_Backward() {
             // Debug.Log("Move_Avoid_Backward");
-            transform.position -= currentMovingDir * ((moveSpeed + 5f) * Time.deltaTime);
+            transform.position -= currentMovingDir.normalized * ((moveSpeed + 3.5f) * Time.deltaTime);
         }
         
         //--------------------------------------------------------------
@@ -151,7 +151,6 @@ namespace Script {
         #endregion
 
         #region Change Vector With Camera Delegates
-
         //--------------------------------------------------------------
 
         /// <summary>
@@ -276,10 +275,11 @@ namespace Script {
 
         public void Avoid_Start() {
             ChangeDelegate_InputUnable();
-            dl_move = Move_Avoid_Backward;
             
-            // if (inputMoveVector != Vector2.zero) dl_move = Move_Avoid;
-            // else dl_move = Move_Avoid_Backward;
+            if (inputMoveVector != Vector2.zero) dl_move = Move_Avoid;
+            else dl_move = Move_Avoid_Backward;
+            
+            Invoke(nameof(Avoid_End), 0.6f);
         }
 
         public void Avoid_End() {

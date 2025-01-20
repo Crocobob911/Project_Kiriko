@@ -94,14 +94,14 @@ namespace Script {
         public void AvoidSuccess(float time) {
             // 회피 성공
             isAvoiding = false;
-            moveController.Avoid_End();
+            // moveController.Avoid_End();
             Debug.Log("[Player] Success Avoid. Time : " + time + "s.");
         }
 
         public void AvoidFail() {
             // 회피 실패
             isAvoiding = false;
-            moveController.Avoid_End();
+            // moveController.Avoid_End();
             Debug.Log("[Player] Avoid Failed.");
         }
         //==============================================================
