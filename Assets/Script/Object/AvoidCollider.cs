@@ -30,6 +30,7 @@ namespace Script {
         }
 
         private void AvoidFail() {
+            // Debug.Log("Avoid Collider");
             player.AvoidFail();
             time = 0f;
             gameObject.SetActive(false);

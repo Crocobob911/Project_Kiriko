@@ -43,6 +43,7 @@ namespace Script {
         }
 
         private void Start() {
+            // Debug.Log("Start");
             ChangeDelegate_Inputable();
 
 #if UNITY_EDITOR
@@ -59,6 +60,7 @@ namespace Script {
 
         //==============================================================
         private void ChangeDelegate_Inputable() {
+            // Debug.Log("Inputable");
             dl_moveApply = MoveApply_Inputable;
             dl_move = Move_Idle;
             dl_CalculMoveDir = ChangeMoveVectorWithCamera;
@@ -68,6 +70,7 @@ namespace Script {
         }
 
         private void ChangeDelegate_InputUnable() {
+            // Debug.Log("Input Unable");
             dl_moveApply = vector => { };
             dl_CalculMoveDir = vector => currentMovingDir;
             dl_sprintApply = input => { };
@@ -139,6 +142,7 @@ namespace Script {
         }
 
         private void Move_Avoid_Backward() {
+            // Debug.Log("Move_Avoid_Backward");
             transform.position -= currentMovingDir * ((moveSpeed + 5f) * Time.deltaTime);
         }
         
@@ -196,6 +200,7 @@ namespace Script {
         }
 
         public void Jump_End() {
+            Debug.Log("Jump End");
             ChangeDelegate_Inputable();
             dl_moveApply(inputMoveVector);
             dl_sprintApply(isSprintInput);
@@ -264,15 +269,17 @@ namespace Script {
         }
 
         private void KnockBack_End() {
+            Debug.Log("KnockBack End");
             ChangeDelegate_Inputable();
         }
         
 
         public void Avoid_Start() {
-            if (inputMoveVector != Vector2.zero) dl_move = Move_Avoid;
-            else dl_move = Move_Avoid_Backward;
-            
             ChangeDelegate_InputUnable();
+            dl_move = Move_Avoid_Backward;
+            
+            // if (inputMoveVector != Vector2.zero) dl_move = Move_Avoid;
+            // else dl_move = Move_Avoid_Backward;
         }
 
         public void Avoid_End() {
