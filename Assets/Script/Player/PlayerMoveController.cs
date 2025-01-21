@@ -25,6 +25,10 @@ namespace Script {
         
         [SerializeField] private float avoidSpeed;
         // value Modifier
+        [SerializeField] private float avoidInputUnableTime = 0.6f;
+        // value Modifier
+        
+        [SerializeField] private float knockBackInputUnableTime = 0.6f;
         
         
         [SerializeField] private float jumpForce = 5f;
@@ -261,7 +265,7 @@ namespace Script {
             ChangeDelegate_InputUnable();
             dl_move = Move_KnockBack;
 
-            Invoke(nameof(KnockBack_End), 0.6f);
+            Invoke(nameof(KnockBack_End), knockBackInputUnableTime);
 
             // 넉백 중엔 무적 판정이 있어야하진 않을까?
         }
@@ -280,7 +284,7 @@ namespace Script {
             if (inputMoveVector != Vector2.zero) dl_move = Move_Avoid;
             else dl_move = Move_Avoid_Backward;
             
-            Invoke(nameof(Avoid_End), 0.6f);
+            Invoke(nameof(Avoid_End), avoidInputUnableTime);
         }
 
         public void Avoid_End() {

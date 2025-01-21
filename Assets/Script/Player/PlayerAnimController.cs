@@ -75,11 +75,13 @@ namespace Script {
         
         public void Avoid_Start() {
             animator.SetTrigger(animAvoid);
+            // 카메라 락온 상태에 따라서 다른 애니메이션 출력해줘야함.
         }
         
         
         public void SetIsCamLocked(bool isCamLocked) {
             animator.SetBool(animIsCamLocked, isCamLocked);
         }
+        // 이거 그냥 옵저버 패턴으로 바꿀까?
     }
 }

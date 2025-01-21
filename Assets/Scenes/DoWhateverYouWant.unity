@@ -1193,6 +1193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2259361b5ebae943ae5088a7469f601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyMaxHp: 1000
+  enemyMaxStamina: 100
 --- !u!4 &1791514662 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 365224a2d31e8754d977df00320812ab, type: 3}
@@ -1591,6 +1593,9 @@ MonoBehaviour:
   playerRigidbody: {fileID: 0}
   defaultMoveSpeed: 5
   turnSpeed: 10
+  avoidSpeed: 8.6
+  avoidInputUnableTime: 0.6
+  knockBackInputUnableTime: 0
   jumpForce: 5
 --- !u!114 &2131187804
 MonoBehaviour:
@@ -1607,6 +1612,8 @@ MonoBehaviour:
   animController: {fileID: 2131187801}
   moveController: {fileID: 2131187803}
   avoidCollider: {fileID: 966488873}
+  playerMaxHP: 300
+  playerMaxStamina: 100
   avoidStamina: 10
   jumpStamina: 10
 --- !u!1001 &1025817842909334761
