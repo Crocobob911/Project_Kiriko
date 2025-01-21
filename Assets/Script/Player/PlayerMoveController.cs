@@ -1,3 +1,4 @@
+using UnityEditor.Timeline.Actions;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.InputSystem.Interactions;
@@ -266,12 +267,14 @@ namespace Script {
             ChangeDelegate_InputUnable();
             dl_move = Move_KnockBack;
 
+            if(IsInvoking(nameof(KnockBack_End)))   CancelInvoke(nameof(KnockBack_End));
+            
             Invoke(nameof(KnockBack_End), knockBackInputUnableTime);
 
             // 넉백 중엔 무적 판정이 있어야하진 않을까?
         }
 
-        private void KnockBack_End() {
+        public void KnockBack_End() {
             Debug.Log("KnockBack End");
             ChangeDelegate_Inputable();
         }
