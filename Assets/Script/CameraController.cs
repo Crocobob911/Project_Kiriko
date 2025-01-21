@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Cinemachine;
@@ -7,12 +8,21 @@ using UnityEngine.InputSystem;
 namespace Script {
     [RequireComponent(typeof(Cinemachine3rdPersonFollow))]
     public class CameraController : MonoBehaviour, IValueModifierObserver {
+
+        private static CameraController instance = null;
+
+        public static CameraController Instance 
+            => null == instance ? null : instance;
+
+
         // -------- Mouse Move -> Rotate 관련 -----
         private PlayerMoveController playerController;
         private Transform cameraRoot;
         private ICameraRotationCalculator camCal;
         private UnLockedCamCalculator unLockedCam;
         private LockedCamCalculator lockedCam;
+        
+        private List<ICameraLockObserver> lockObservers = new List<ICameraLockObserver>();
         
         [SerializeField] private float mouseSensitivity = 1f; // 나중에 0.1f가 추가로 곱해짐.
 
@@ -33,6 +43,10 @@ namespace Script {
         
 
         private void Awake() {
+            if (null == instance) instance = this;
+            else Destroy(gameObject);
+            
+            
             cameraRoot = gameObject.transform;
             componentBase = vcam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
             playerController = cameraRoot.transform.GetComponentInParent<PlayerMoveController>();
@@ -72,14 +86,14 @@ namespace Script {
             isCamLocked = true;
             camCal = lockedCam;
             camCal.SetLockedObj(lockedObj);
-            playerController.SetCamLock(true);
+            LockUpdate_forObservers(isCamLocked);
         }
 
         private void SetCamLockOff() {
             isCamLocked = false;
             camCal.SetLockedObj(null);
             camCal = unLockedCam;
-            playerController.SetCamLock(false);
+            LockUpdate_forObservers(isCamLocked);
         }
 
         // RaySphere로 바라보고 있는 곳에 있는 <Enemy> GameObject를 찾아 반홤.
@@ -93,6 +107,16 @@ namespace Script {
             return (from hit in hits
                 where hit.transform.GetComponent<Enemy>()
                 select hit.transform.GetComponent<Enemy>().transform.gameObject).FirstOrDefault();
+        }
+
+        public void AddMeLockObserver(ICameraLockObserver observer) {
+            lockObservers.Add(observer);
+        }
+
+        private void LockUpdate_forObservers(bool locked) {
+            foreach (var obs in lockObservers) {
+                obs.CamLockUpdate(locked);
+            }
         }
 
         // 스크롤 드르륵 -> 카메라 줌인 줌아웃
@@ -174,5 +198,10 @@ namespace Script {
 #endif
 
         public void SetLockedObj(GameObject obj) {}
+    }
+
+
+    public interface ICameraLockObserver {
+        public void CamLockUpdate(bool locked);
     }
 }

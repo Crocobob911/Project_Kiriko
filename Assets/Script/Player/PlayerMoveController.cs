@@ -4,7 +4,7 @@ using UnityEngine.InputSystem.Interactions;
 using UnityEngine.Serialization;
 
 namespace Script {
-    public class PlayerMoveController : MonoBehaviour, IValueModifierObserver {
+    public class PlayerMoveController : MonoBehaviour, IValueModifierObserver, ICameraLockObserver {
 
         #region Fields
 
@@ -52,7 +52,8 @@ namespace Script {
         private void Start() {
             // Debug.Log("Start");
             ChangeDelegate_Inputable();
-
+            
+            CameraController.Instance.AddMeLockObserver(this);
 #if UNITY_EDITOR
             ValueModifier.Instance.AddSubscriber(this);
             ValueModifierUpdated();
@@ -296,10 +297,9 @@ namespace Script {
         
 
         #endregion
-
-        public void SetCamLock(bool isLocked) {
-            isCamLocked = isLocked;
-            animController.SetIsCamLocked(isLocked);
+        
+        public void CamLockUpdate(bool locked) {
+            isCamLocked = locked;
         }
 
 
@@ -309,5 +309,6 @@ namespace Script {
             sprintSpeed = ValueModifier.Instance.SprintSpeed;
         }
 #endif
+
     }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Script {
-    public class PlayerAnimController : MonoBehaviour
+    public class PlayerAnimController : MonoBehaviour, ICameraLockObserver
     {
         // 애니메이터 매개변수들
         // Animator.StringToHash()로 그 값들을 미리 가져와 갖고있음으로써, 연산 줄여줌.
@@ -25,7 +25,8 @@ namespace Script {
     
         private void Start() {
             animator = transform.GetChild(1).GetComponent<Animator>();
-        
+            CameraController.Instance.AddMeLockObserver(this);
+            
             Init();
         }
     
@@ -77,11 +78,9 @@ namespace Script {
             animator.SetTrigger(animAvoid);
             // 카메라 락온 상태에 따라서 다른 애니메이션 출력해줘야함.
         }
-        
-        
-        public void SetIsCamLocked(bool isCamLocked) {
-            animator.SetBool(animIsCamLocked, isCamLocked);
+
+        public void CamLockUpdate(bool locked) {
+            animator.SetBool(animIsCamLocked, locked);
         }
-        // 이거 그냥 옵저버 패턴으로 바꿀까?
     }
 }

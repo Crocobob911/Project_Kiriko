@@ -13,12 +13,14 @@ namespace Script {
 
         [SerializeField] private int playerMaxHP;
         [SerializeField] private int playerMaxStamina;
+
+        private int ultiGauge = 100;
          
         [SerializeField] private int avoidStamina = 10;
         // value Modifier
         [SerializeField] private int jumpStamina = 10;
         // value Modifier
-
+        
         
         private void Start() {
             Init();
