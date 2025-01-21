@@ -23,6 +23,9 @@ namespace Script {
         private Vector3 currentMovingDir;
         [SerializeField] private float turnSpeed = 10f;
         
+        [SerializeField] private float avoidSpeed;
+        // value Modifier
+        
         
         [SerializeField] private float jumpForce = 5f;
         // value modifier
@@ -138,12 +141,12 @@ namespace Script {
         }
         
         private void Move_Avoid() {
-            transform.position += currentMovingDir.normalized * ((moveSpeed + 3.6f) * Time.deltaTime);
+            transform.position += currentMovingDir.normalized * (avoidSpeed * Time.deltaTime);
         }
 
         private void Move_Avoid_Backward() {
             // Debug.Log("Move_Avoid_Backward");
-            transform.position -= currentMovingDir.normalized * ((moveSpeed + 3.5f) * Time.deltaTime);
+            transform.position -= currentMovingDir.normalized * (avoidSpeed * Time.deltaTime);
         }
         
         //--------------------------------------------------------------
@@ -232,6 +235,7 @@ namespace Script {
         private delegate void SprintApply(bool input);
 
         private SprintApply dl_sprintApply;
+        
 
         private void SprintApply_Inputable(bool input) {
             if (isSprint == input) return;
@@ -252,12 +256,7 @@ namespace Script {
 
         #endregion
 
-        public void SetCamLock(bool isLocked) {
-            isCamLocked = isLocked;
-            animController.SetIsCamLocked(isLocked);
-        }
-
-
+        #region KnockBack
         public void KnockBack_Start() {
             ChangeDelegate_InputUnable();
             dl_move = Move_KnockBack;
@@ -271,8 +270,10 @@ namespace Script {
             Debug.Log("KnockBack End");
             ChangeDelegate_Inputable();
         }
+        #endregion
         
-
+        #region Avoid
+        
         public void Avoid_Start() {
             ChangeDelegate_InputUnable();
             
@@ -287,6 +288,14 @@ namespace Script {
             
             dl_moveApply(inputMoveVector);
             dl_sprintApply(isSprintInput);
+        }
+        
+
+        #endregion
+
+        public void SetCamLock(bool isLocked) {
+            isCamLocked = isLocked;
+            animController.SetIsCamLocked(isLocked);
         }
 
 
