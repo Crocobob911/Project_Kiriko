@@ -11,8 +11,7 @@ public class CombatObject : MonoBehaviour
             if(value > maxStamina) stamina = maxStamina;
             else if(value < 0) stamina = 0;
             stamina = value;
-            Debug.Log("["+ name +"] Stamina : " + stamina);
-            
+            Debug.Log("[" + name + "] Stamina : " + stamina);
         }
     }
         

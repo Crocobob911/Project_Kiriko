@@ -1,11 +1,29 @@
-using UnityEditor.Timeline.Actions;
-using UnityEngine.InputSystem;
 using UnityEngine;
-using UnityEngine.InputSystem.Interactions;
-using UnityEngine.Serialization;
+using UnityEngine.InputSystem;
 
 namespace Script {
     public class PlayerMoveController : MonoBehaviour, IValueModifierObserver, ICameraLockObserver {
+        private void Awake() {
+            // cameraRoot = gameObject.transform.GetChild(0).GetComponent<Transform>();
+            // playerBody = gameObject.transform.GetChild(1).GetComponent<Transform>();
+            playerRigidbody = gameObject.transform.GetComponent<Rigidbody>();
+            animController = transform.GetComponent<PlayerAnimController>();
+        }
+
+        private void Start() {
+            // Debug.Log("Start");
+            ChangeDelegate_Inputable();
+            
+            CameraRotateController.Instance.AddMeLockObserver(this);
+#if UNITY_EDITOR
+            ValueModifier.Instance.AddSubscriber(this);
+            ValueModifierUpdated();
+#endif
+        }
+
+        private void Update() {
+            dl_move();
+        }
 
         #region Fields
 
@@ -18,20 +36,21 @@ namespace Script {
 
         [SerializeField] private float defaultMoveSpeed = 5f;
         private float moveSpeed;
-        private bool isMoveInput;
+        private bool isMove;
         private Vector2 inputMoveVector;
         private Vector2 moveDir;
         private Vector3 currentMovingDir;
         [SerializeField] private float turnSpeed = 10f;
-        
+
         [SerializeField] private float avoidSpeed;
+
         // value Modifier
         [SerializeField] private float avoidInputUnableTime = 0.6f;
         // value Modifier
-        
+
         [SerializeField] private float knockBackInputUnableTime = 0.6f;
-        
-        
+
+
         [SerializeField] private float jumpForce = 5f;
         // value modifier
 
@@ -42,28 +61,6 @@ namespace Script {
         private bool isCamLocked;
 
         #endregion
-
-        private void Awake() {
-            cameraRoot = gameObject.transform.GetChild(0).GetComponent<Transform>();
-            playerBody = gameObject.transform.GetChild(1).GetComponent<Transform>();
-            playerRigidbody = gameObject.transform.GetComponent<Rigidbody>();
-            animController = transform.GetComponent<PlayerAnimController>();
-        }
-
-        private void Start() {
-            // Debug.Log("Start");
-            ChangeDelegate_Inputable();
-            
-            CameraController.Instance.AddMeLockObserver(this);
-#if UNITY_EDITOR
-            ValueModifier.Instance.AddSubscriber(this);
-            ValueModifierUpdated();
-#endif
-        }
-
-        private void Update() {
-            dl_move();
-        }
 
         #region Delegates Switch
 
@@ -90,6 +87,7 @@ namespace Script {
         #endregion
 
         #region Move
+
         //==============================================================
         /**
          * WASD 인풋이 바뀔 때마다 호출. Player의 direction을 바꿔줌.
@@ -108,7 +106,7 @@ namespace Script {
 
         private void MoveApply_Inputable(Vector2 inputVector) {
             moveDir = inputVector;
-            isMoveInput = inputVector != Vector2.zero;
+            isMove = inputVector != Vector2.zero;
             animController.SetMoveAnimDirection(moveDir);
         }
 
@@ -117,6 +115,7 @@ namespace Script {
         #endregion
 
         #region Move
+
         //--------------------------------------------------------------
         private delegate void Move();
 
@@ -128,7 +127,7 @@ namespace Script {
         /// 점프 중에는 WASD 인풋에 의한 움직임을 제한함.
         /// </summary>
         private void Move_Idle() {
-            if (!isMoveInput) return;
+            if (!isMove) return;
 
             currentMovingDir = dl_CalculMoveDir(moveDir);
 
@@ -145,7 +144,7 @@ namespace Script {
             // 와 개 조잡한데 이거 맞나
             transform.position -= currentMovingDir * ((moveSpeed - 2f) * Time.deltaTime);
         }
-        
+
         private void Move_Avoid() {
             transform.position += currentMovingDir.normalized * (avoidSpeed * Time.deltaTime);
         }
@@ -154,12 +153,13 @@ namespace Script {
             // Debug.Log("Move_Avoid_Backward");
             transform.position -= currentMovingDir.normalized * (avoidSpeed * Time.deltaTime);
         }
-        
+
         //--------------------------------------------------------------
 
         #endregion
 
         #region Change Vector With Camera Delegates
+
         //--------------------------------------------------------------
 
         /// <summary>
@@ -183,8 +183,8 @@ namespace Script {
 
         private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
             // 플레이어 이동 Lerp
-            return (newMoveDir - currentMoveDir).magnitude >= 0.001f
-                ? Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime)
+            return (newMoveDir - currentMoveDir).magnitude >= 0.001f ? 
+                Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime)
                 : newMoveDir;
         }
 
@@ -197,6 +197,7 @@ namespace Script {
         #endregion
 
         #region Jump
+
         //==============================================================
         public void Jump() {
             playerRigidbody.velocity = new Vector3(playerRigidbody.velocity.x, 0, playerRigidbody.velocity.z);
@@ -224,7 +225,7 @@ namespace Script {
         // ReSharper disable Unity.PerformanceAnalysis
         public void SprintInput(InputAction.CallbackContext context) // 좌 Shift를 누를 때 , 뗄 때 => 달리기 Trigger
         {
-            if (!isMoveInput) return; // 걷고있을 때에만 달리기 트리거
+            if (!isMove) return;
 
             if (context.started) isSprintInput = true;
             else if (context.canceled) isSprintInput = false;
@@ -241,7 +242,7 @@ namespace Script {
         private delegate void SprintApply(bool input);
 
         private SprintApply dl_sprintApply;
-        
+
 
         private void SprintApply_Inputable(bool input) {
             if (isSprint == input) return;
@@ -263,12 +264,11 @@ namespace Script {
         #endregion
 
         #region KnockBack
+
         public void KnockBack_Start() {
             ChangeDelegate_InputUnable();
             dl_move = Move_KnockBack;
-
-            if(IsInvoking(nameof(KnockBack_End)))   CancelInvoke(nameof(KnockBack_End));
-            
+            if(IsInvoking(nameof(KnockBack_End))) CancelInvoke(nameof(KnockBack_End));
             Invoke(nameof(KnockBack_End), knockBackInputUnableTime);
 
             // 넉백 중엔 무적 판정이 있어야하진 않을까?
@@ -278,10 +278,11 @@ namespace Script {
             Debug.Log("KnockBack End");
             ChangeDelegate_Inputable();
         }
+
         #endregion
-        
+
         #region Avoid
-        
+
         public void Avoid_Start() {
             ChangeDelegate_InputUnable();
             
@@ -293,14 +294,12 @@ namespace Script {
 
         public void Avoid_End() {
             ChangeDelegate_Inputable();
-            
             dl_moveApply(inputMoveVector);
             dl_sprintApply(isSprintInput);
         }
-        
 
         #endregion
-        
+
         public void CamLockUpdate(bool locked) {
             isCamLocked = locked;
         }

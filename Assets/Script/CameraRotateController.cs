@@ -7,15 +7,14 @@ using UnityEngine.InputSystem;
 
 namespace Script {
     [RequireComponent(typeof(Cinemachine3rdPersonFollow))]
-    public class CameraController : MonoBehaviour, IValueModifierObserver {
+    public class CameraRotateController : MonoBehaviour, IValueModifierObserver {
 
-        private static CameraController instance = null;
+        private static CameraRotateController instance = null;
 
-        public static CameraController Instance 
+        public static CameraRotateController Instance 
             => null == instance ? null : instance;
 
 
-        // -------- Mouse Move -> Rotate 관련 -----
         private PlayerMoveController playerController;
         private Transform cameraRoot;
         private ICameraRotationCalculator camCal;
@@ -32,23 +31,14 @@ namespace Script {
 
         private readonly float camLockFindDistance = 100f;
         [SerializeField] private float camLockFindRadius = 5f; // 록온 찾는 원기둥 지름
-
-        // -------- Zoom 관련 ----------
-        [SerializeField] private CinemachineVirtualCamera vcam;
-        private Cinemachine3rdPersonFollow componentBase;
         
-        [SerializeField] private float zoomMin;
-        [SerializeField] private float zoomMax;
-        [SerializeField] private float zoomSpeed;
         
 
         private void Awake() {
             if (null == instance) instance = this;
             else Destroy(gameObject);
             
-            
             cameraRoot = gameObject.transform;
-            componentBase = vcam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
             playerController = cameraRoot.transform.GetComponentInParent<PlayerMoveController>();
         }
 
@@ -96,7 +86,6 @@ namespace Script {
             LockUpdate_forObservers(isCamLocked);
         }
 
-        // RaySphere로 바라보고 있는 곳에 있는 <Enemy> GameObject를 찾아 반홤.
         private GameObject FindObjectToLock() {
             // ReSharper disable once Unity.PreferNonAllocApi
             var hits = Physics.SphereCastAll(
@@ -119,20 +108,10 @@ namespace Script {
             }
         }
 
-        // 스크롤 드르륵 -> 카메라 줌인 줌아웃
-        public void ZoomCamera(InputAction.CallbackContext context) {
-            componentBase.CameraDistance 
-                = Mathf.Clamp(componentBase.CameraDistance - context.ReadValue<float>() * zoomSpeed * Time.deltaTime, 
-                    zoomMin, zoomMax);
-        }
-
 
 #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             mouseSensitivity = ValueModifier.Instance.CamSensitivity;
-            zoomSpeed = ValueModifier.Instance.ZoomSpeed;
-            zoomMin = ValueModifier.Instance.ZoomMin;
-            zoomMax = ValueModifier.Instance.ZoomMax;
         }
 #endif
     }

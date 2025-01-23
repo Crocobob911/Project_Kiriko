@@ -25,7 +25,7 @@ namespace Script {
     
         private void Start() {
             animator = transform.GetChild(1).GetComponent<Animator>();
-            CameraController.Instance.AddMeLockObserver(this);
+            CameraRotateController.Instance.AddMeLockObserver(this);
             
             Init();
         }
@@ -59,7 +59,7 @@ namespace Script {
             SetMoveAnimDirection(Vector2.zero);
         
             // 도약 모션 재생 들어가야함.
-            // 그 뒤에 체공 모션으로 자연스레 넘어갸야함.
+            // 그 뒤에 체공 모션으로 자연스레 넘어가야함.
             
             // 카메라 락온, 락온 아님에 따라 다른 애니 출력해줘야함.
         }

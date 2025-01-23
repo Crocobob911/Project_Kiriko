@@ -323,8 +323,8 @@ MonoBehaviour:
     m_ActionName: Player/CamLock[/Keyboard/f1]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 442407697}
-        m_TargetAssemblyTypeName: Script.CameraController, Assembly-CSharp
+      - m_Target: {fileID: 1986192455}
+        m_TargetAssemblyTypeName: CameraZoomController, Assembly-CSharp
         m_MethodName: ZoomCamera
         m_Mode: 0
         m_Arguments:
@@ -599,10 +599,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSensitivity: 1
   camLockFindRadius: 5
-  vcam: {fileID: 510827768}
-  zoomMin: 0
-  zoomMax: 0
-  zoomSpeed: 0
 --- !u!114 &442407698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -845,6 +841,10 @@ PrefabInstance:
       propertyPath: CameraSide
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2336097832552148478, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
+      propertyPath: vcam
+      value: 
+      objectReference: {fileID: 510827768}
     - target: {fileID: 4458431250336004325, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
       propertyPath: m_Name
       value: PlayerFollowCamera
@@ -1045,7 +1045,7 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 3
   camSensitivity: 0.5
-  zoomSpeed: 1
+  zoomSpeed: 0.3
   zoomMin: 0.5
   zoomMax: 12
   camAngleMaximum: 40
@@ -1200,6 +1200,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 365224a2d31e8754d977df00320812ab, type: 3}
   m_PrefabInstance: {fileID: 940372040}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1986192455 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2336097832552148478, guid: 87de5e5a25de0824d91115db5d21be64, type: 3}
+  m_PrefabInstance: {fileID: 753002898}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ab3e8f283f4d9044ab9a921ed88a909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2029367135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1587,15 +1598,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98060703f2bcd8243b2b7ec66f385e39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animController: {fileID: 0}
-  playerBody: {fileID: 0}
-  cameraRoot: {fileID: 0}
+  animController: {fileID: 2131187801}
+  playerBody: {fileID: 1228852087}
+  cameraRoot: {fileID: 442407696}
   playerRigidbody: {fileID: 0}
   defaultMoveSpeed: 5
   turnSpeed: 10
   avoidSpeed: 8.6
   avoidInputUnableTime: 0.6
-  knockBackInputUnableTime: 0
+  knockBackInputUnableTime: 0.6
   jumpForce: 5
 --- !u!114 &2131187804
 MonoBehaviour:
