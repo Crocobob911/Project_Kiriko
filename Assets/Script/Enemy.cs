@@ -1,10 +1,29 @@
+using System;
 using UnityEngine;
 
 namespace Script
 {
-    public class Enemy : MonoBehaviour, IAttackableObject {
+    public class Enemy : CombatObject, IAttackableObject {
 
-        public void Attacked(int damage) {}
+        [SerializeField] private int enemyMaxHp;
+        [SerializeField] private int enemyMaxStamina;
+
+
+        private void Start() {
+            Init();
+        }
+
+        private void Init() {
+            MaxHp = enemyMaxHp;
+            MaxStamina = enemyMaxStamina;
+            
+            Hp = MaxHp;
+            Stamina = MaxStamina;
+        }
+
+        public void Attacked(int damage) {
+            Hp -= damage;
+        }
         
     }
 

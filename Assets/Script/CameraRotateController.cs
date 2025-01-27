@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Cinemachine;
@@ -6,13 +7,21 @@ using UnityEngine.InputSystem;
 
 namespace Script {
     [RequireComponent(typeof(Cinemachine3rdPersonFollow))]
-    public class CameraController : MonoBehaviour, IValueModifierObserver {
-        // -------- Mouse Move -> Rotate 관련 -----
+    public class CameraRotateController : MonoBehaviour, IValueModifierObserver {
+
+        private static CameraRotateController instance = null;
+
+        public static CameraRotateController Instance 
+            => null == instance ? null : instance;
+
+
         private PlayerMoveController playerController;
         private Transform cameraRoot;
         private ICameraRotationCalculator camCal;
         private UnLockedCamCalculator unLockedCam;
         private LockedCamCalculator lockedCam;
+        
+        private List<ICameraLockObserver> lockObservers = new List<ICameraLockObserver>();
         
         [SerializeField] private float mouseSensitivity = 1f; // 나중에 0.1f가 추가로 곱해짐.
 
@@ -22,19 +31,14 @@ namespace Script {
 
         private readonly float camLockFindDistance = 100f;
         [SerializeField] private float camLockFindRadius = 5f; // 록온 찾는 원기둥 지름
-
-        // -------- Zoom 관련 ----------
-        [SerializeField] private CinemachineVirtualCamera vcam;
-        private Cinemachine3rdPersonFollow componentBase;
         
-        [SerializeField] private float zoomMin;
-        [SerializeField] private float zoomMax;
-        [SerializeField] private float zoomSpeed;
         
 
         private void Awake() {
+            if (null == instance) instance = this;
+            else Destroy(gameObject);
+            
             cameraRoot = gameObject.transform;
-            componentBase = vcam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
             playerController = cameraRoot.transform.GetComponentInParent<PlayerMoveController>();
         }
 
@@ -72,17 +76,16 @@ namespace Script {
             isCamLocked = true;
             camCal = lockedCam;
             camCal.SetLockedObj(lockedObj);
-            playerController.SetCamLock(true);
+            LockUpdate_forObservers(isCamLocked);
         }
 
         private void SetCamLockOff() {
             isCamLocked = false;
             camCal.SetLockedObj(null);
             camCal = unLockedCam;
-            playerController.SetCamLock(false);
+            LockUpdate_forObservers(isCamLocked);
         }
 
-        // RaySphere로 바라보고 있는 곳에 있는 <Enemy> GameObject를 찾아 반홤.
         private GameObject FindObjectToLock() {
             // ReSharper disable once Unity.PreferNonAllocApi
             var hits = Physics.SphereCastAll(
@@ -95,20 +98,20 @@ namespace Script {
                 select hit.transform.GetComponent<Enemy>().transform.gameObject).FirstOrDefault();
         }
 
-        // 스크롤 드르륵 -> 카메라 줌인 줌아웃
-        public void ZoomCamera(InputAction.CallbackContext context) {
-            componentBase.CameraDistance 
-                = Mathf.Clamp(componentBase.CameraDistance - context.ReadValue<float>() * zoomSpeed * Time.deltaTime, 
-                    zoomMin, zoomMax);
+        public void AddMeLockObserver(ICameraLockObserver observer) {
+            lockObservers.Add(observer);
+        }
+
+        private void LockUpdate_forObservers(bool locked) {
+            foreach (var obs in lockObservers) {
+                obs.CamLockUpdate(locked);
+            }
         }
 
 
 #if UNITY_EDITOR
         public void ValueModifierUpdated() {
             mouseSensitivity = ValueModifier.Instance.CamSensitivity;
-            zoomSpeed = ValueModifier.Instance.ZoomSpeed;
-            zoomMin = ValueModifier.Instance.ZoomMin;
-            zoomMax = ValueModifier.Instance.ZoomMax;
         }
 #endif
     }
@@ -174,5 +177,10 @@ namespace Script {
 #endif
 
         public void SetLockedObj(GameObject obj) {}
+    }
+
+
+    public interface ICameraLockObserver {
+        public void CamLockUpdate(bool locked);
     }
 }
