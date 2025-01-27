@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Script {
-    public class PlayerAnimController : MonoBehaviour
+    public class PlayerAnimController : MonoBehaviour, ICameraLockObserver
     {
         // 애니메이터 매개변수들
         // Animator.StringToHash()로 그 값들을 미리 가져와 갖고있음으로써, 연산 줄여줌.
@@ -25,7 +25,8 @@ namespace Script {
     
         private void Start() {
             animator = transform.GetChild(1).GetComponent<Animator>();
-        
+            CameraRotateController.Instance.AddMeLockObserver(this);
+            
             Init();
         }
     
@@ -58,7 +59,7 @@ namespace Script {
             SetMoveAnimDirection(Vector2.zero);
         
             // 도약 모션 재생 들어가야함.
-            // 그 뒤에 체공 모션으로 자연스레 넘어갸야함.
+            // 그 뒤에 체공 모션으로 자연스레 넘어가야함.
             
             // 카메라 락온, 락온 아님에 따라 다른 애니 출력해줘야함.
         }
@@ -75,11 +76,11 @@ namespace Script {
         
         public void Avoid_Start() {
             animator.SetTrigger(animAvoid);
+            // 카메라 락온 상태에 따라서 다른 애니메이션 출력해줘야함.
         }
-        
-        
-        public void SetIsCamLocked(bool isCamLocked) {
-            animator.SetBool(animIsCamLocked, isCamLocked);
+
+        public void CamLockUpdate(bool locked) {
+            animator.SetBool(animIsCamLocked, locked);
         }
     }
 }

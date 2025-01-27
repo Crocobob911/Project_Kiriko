@@ -79,6 +79,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1071728159682831915}
   - component: {fileID: 8939378392378446396}
+  - component: {fileID: 2336097832552148478}
   m_Layer: 0
   m_Name: PlayerFollowCamera
   m_TagString: Untagged
@@ -141,3 +142,19 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 5791039866562610390}
+--- !u!114 &2336097832552148478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4458431250336004325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ab3e8f283f4d9044ab9a921ed88a909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vcam: {fileID: 0}
+  zoomMin: 0.5
+  zoomMax: 40
+  zoomSpeed: 0.3

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Script {
@@ -7,7 +8,7 @@ namespace Script {
         private void OnTriggerEnter(Collider other) {
             Debug.Log("[LandingCollider] : " + other.transform.tag);
             if (!other.transform.CompareTag("Ground")) return;
-             
+
             player.Jump_End();
         }
     }
