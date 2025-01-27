@@ -107,7 +107,7 @@ namespace Script {
         private void MoveApply_Inputable(Vector2 inputVector) {
             moveDir = inputVector;
             isMove = inputVector != Vector2.zero;
-            animController.SetMoveAnimDirection(moveDir);
+            animController.SetMoveDirection(moveDir);
         }
 
         //--------------------------------------------------------------
@@ -178,14 +178,12 @@ namespace Script {
                 new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z) * moveDirection.y +
                 new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z) * moveDirection.x;
 
-            return LerpMoveDirection(dir, currentMovingDir);
+            return LerpVector(dir, currentMovingDir, turnSpeed);
         }
 
-        private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
-            // 플레이어 이동 Lerp
-            return (newMoveDir - currentMoveDir).magnitude >= 0.001f ? 
-                Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime)
-                : newMoveDir;
+        private Vector3 LerpVector(Vector3 current, Vector3 target, float lerpSpeed) {
+            return (target - current).magnitude >= 0.001f ? 
+                Vector3.Lerp(current, target, lerpSpeed * Time.deltaTime) : target;
         }
 
         //--------------------------------------------------------------
