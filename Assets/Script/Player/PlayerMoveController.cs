@@ -305,7 +305,13 @@ namespace Script {
         #endregion
 
         #region Attack
-        public void Attack_Start() {
+        public void NormalAttack_Start() {
+            ChangeDelegate_InputUnable();
+            dl_move = Move_Attack;
+            playerBody.forward = currentMovingDir;
+        }
+        
+        public void StrongAttack_Start() {
             ChangeDelegate_InputUnable();
             dl_move = Move_Attack;
             playerBody.forward = currentMovingDir;

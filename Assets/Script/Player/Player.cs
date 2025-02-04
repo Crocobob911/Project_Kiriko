@@ -50,22 +50,39 @@ namespace Script {
 
         #region Attack
 
-        public void Attack_Start(InputAction.CallbackContext context) {
-            if(!context.started || duringBehavior) return;
+        public void NormalAttack_Start() {
+            if(duringBehavior) return;
             
+            duringBehavior = true;
             weaponCollider.SetActive(true);
-            moveController.Attack_Start();
-            animController.Attack_Start();
+            moveController.NormalAttack_Start();
+            animController.NormalAttack_Start();
             
             Invoke(nameof(Attack_End), 0.51f);
         }
 
-        public void Attack(Enemy target) {
+        public void StrongAttack_Start() {
+            if(duringBehavior) return;
+            
+            duringBehavior = true;
+            weaponCollider.SetActive(true);
+            moveController.StrongAttack_Start();
+            animController.StrongAttack_Start();
+            
+            Invoke(nameof(Attack_End), 1.74f);
+        }
+
+        public void Attack_Normal(Enemy target) {
             target.Attacked(attackManager.
                 CalculateDamage(PlayerAttackManager.AttackType.Normal, false));
         }
 
+        public void Attack_Strong(Enemy target) {
+            
+        }
+
         public void Attack_End() {
+            duringBehavior = false;
             weaponCollider.SetActive(false);
             moveController.Attack_End();
         }

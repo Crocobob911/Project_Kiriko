@@ -34,7 +34,7 @@ namespace Script {
         /// <returns></returns>
         public int CalculateDamage(AttackType type, bool isCritical, float damageRatio_item = 1f) {
             var damageRatio_critical = isCritical ? 1.2f : 1f;
-            return (int)(DamageRaito_Type(type)
+            return (int)(DamageRatio_Type(type)
                          * (playerAttackDamage + AttackPowerCorrection(playerAttackDamage))
                          * damageRatio_item
                          * damageRatio_critical);
@@ -45,7 +45,7 @@ namespace Script {
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        private int DamageRaito_Type(AttackType type) {
+        private int DamageRatio_Type(AttackType type) {
             return type switch {
                 AttackType.Normal => normalAttackDamage,
                 AttackType.Strong => strongAttackDamage,
