@@ -48,13 +48,14 @@ namespace Script {
             Stamina = MaxStamina;
         }
 
+        #region Attack
 
         public void Attack_Start(InputAction.CallbackContext context) {
             if(!context.started || duringBehavior) return;
             
             weaponCollider.SetActive(true);
             moveController.Attack_Start();
-            // animController.Attack_Start();
+            animController.Attack_Start();
             
             Invoke(nameof(Attack_End), 0.51f);
         }
@@ -67,7 +68,6 @@ namespace Script {
         public void Attack_End() {
             weaponCollider.SetActive(false);
             moveController.Attack_End();
-            // animController.AttackeAnim_End();
         }
 
 
@@ -76,7 +76,9 @@ namespace Script {
             moveController.KnockBack_Start();
             animController.KnockBackAnim_Start();
         }
-
+        
+        #endregion
+        
         #region Avoid
 
         //==============================================================

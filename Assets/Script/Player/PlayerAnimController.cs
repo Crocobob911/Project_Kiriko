@@ -12,8 +12,9 @@ namespace Script {
         private readonly int animIsOnAir = Animator.StringToHash("isOnAir");
         private readonly int animAvoid = Animator.StringToHash("avoid");
         private readonly int animKnockBack = Animator.StringToHash("knockBack");
+        private readonly int animAttack = Animator.StringToHash("attack");
 
-        [SerializeField]private Animator animator;
+        private Animator animator;
     
         private Vector2 currentDirection;
         private Vector2 newDirection;
@@ -83,6 +84,11 @@ namespace Script {
         public void AvoidAnim_Start() {
             animator.SetTrigger(animAvoid);
             // 카메라 락온 상태에 따라서 다른 애니메이션 출력해줘야함.
+        }
+
+        public void Attack_Start() {
+            Debug.Log("[AnimController] Attack Started.");
+            animator.SetTrigger(animAttack);
         }
 
         public void CamLockUpdate(bool locked) {

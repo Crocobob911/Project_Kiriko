@@ -298,6 +298,7 @@ namespace Script {
         }
 
         public void Avoid_End() {
+            dl_moveApply(inputMoveVector);
             ChangeDelegate_Inputable();
         }
 
@@ -305,13 +306,12 @@ namespace Script {
 
         #region Attack
         public void Attack_Start() {
-            Debug.Log("[MoveController] Attack Start.");
             ChangeDelegate_InputUnable();
             dl_move = Move_Attack;
+            playerBody.forward = currentMovingDir;
         }
 
         public void Attack_End() {
-            Debug.Log("[MoveController] Attack End.");
             ChangeDelegate_Inputable();
         }
 
