@@ -53,17 +53,21 @@ namespace Script {
             if(!context.started || duringBehavior) return;
             
             weaponCollider.SetActive(true);
-            moveController.Attack();
-            animController.Attack();
+            moveController.Attack_Start();
+            // animController.Attack_Start();
+            
+            Invoke(nameof(Attack_End), 0.51f);
         }
 
         public void Attack(Enemy target) {
-            Enemy.Attacked(attackManager.CalculateDamage(PlayerAttackManager.AttackType.Normal, false));
+            target.Attacked(attackManager.
+                CalculateDamage(PlayerAttackManager.AttackType.Normal, false));
         }
 
         public void Attack_End() {
-            moveController.Jump_End();
-            animController.JumpAnim_End();
+            weaponCollider.SetActive(false);
+            moveController.Attack_End();
+            // animController.AttackeAnim_End();
         }
 
 
@@ -76,7 +80,7 @@ namespace Script {
         #region Avoid
 
         //==============================================================
-        public void ActiveAvoid(InputAction.CallbackContext context) {
+        public void Avoid_Start(InputAction.CallbackContext context) {
             if (!context.started || duringBehavior) return;
 
             isAvoiding = true;
@@ -93,13 +97,13 @@ namespace Script {
             avoidCollider.SetActive(true);
         }
 
-        public void AvoidSuccess(float time) {
+        public void Avoid_Success(float time) {
             isAvoiding = false;
             duringBehavior = false;
             Debug.Log("[Player] Success Avoid. Time : " + time + "s.");
         }
 
-        public void AvoidFail() {
+        public void Avoid_Fail() {
             isAvoiding = false;
             duringBehavior = false;
             Debug.Log("[Player] Avoid Failed.");

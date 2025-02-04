@@ -53,6 +53,8 @@ namespace Script {
 
         [SerializeField] private float jumpForce = 5f;
         // value modifier
+        
+        [SerializeField] private float attackSpeed = 1f;
 
         private float sprintSpeed = 3f;
         private bool isSprint = false;
@@ -72,7 +74,9 @@ namespace Script {
             dl_CalculMoveDir = ChangeMoveVectorWithCamera;
             dl_sprintApply = SprintApply_Inputable;
             
+            
             dl_moveApply(inputMoveVector);
+            dl_sprintApply(isSprintInput);
         }
 
         private void ChangeDelegate_InputUnable() {
@@ -150,8 +154,11 @@ namespace Script {
         }
 
         private void Move_Avoid_Backward() {
-            // Debug.Log("Move_Avoid_Backward");
             transform.position -= currentMovingDir.normalized * (avoidSpeed * Time.deltaTime);
+        }
+
+        private void Move_Attack() {
+            transform.position += currentMovingDir.normalized * (attackSpeed * Time.deltaTime);
         }
 
         //--------------------------------------------------------------
@@ -292,12 +299,24 @@ namespace Script {
 
         public void Avoid_End() {
             ChangeDelegate_Inputable();
-            dl_moveApply(inputMoveVector);
-            dl_sprintApply(isSprintInput);
         }
 
         #endregion
 
+        #region Attack
+        public void Attack_Start() {
+            Debug.Log("[MoveController] Attack Start.");
+            ChangeDelegate_InputUnable();
+            dl_move = Move_Attack;
+        }
+
+        public void Attack_End() {
+            Debug.Log("[MoveController] Attack End.");
+            ChangeDelegate_Inputable();
+        }
+
+        #endregion
+        
         public void CamLockUpdate(bool locked) {
             isCamLocked = locked;
         }

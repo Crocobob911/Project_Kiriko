@@ -24,14 +24,14 @@ namespace Script {
         }
 
         public void Attacked(int damage) {
-            player.AvoidSuccess(time);
+            player.Avoid_Success(time);
             time = 0f;
             gameObject.SetActive(false);
         }
 
         private void AvoidFail() {
             // Debug.Log("Avoid Collider");
-            player.AvoidFail();
+            player.Avoid_Fail();
             time = 0f;
             gameObject.SetActive(false);
         }
