@@ -23,6 +23,7 @@ namespace Script
 
         public void Attacked(int damage) {
             Hp -= damage;
+            // 복잡한 데미지 계산 필요함.
         }
         
     }

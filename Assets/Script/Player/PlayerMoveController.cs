@@ -53,6 +53,8 @@ namespace Script {
 
         [SerializeField] private float jumpForce = 5f;
         // value modifier
+        
+        [SerializeField] private float attackSpeed = 1f;
 
         private float sprintSpeed = 3f;
         private bool isSprint = false;
@@ -72,7 +74,9 @@ namespace Script {
             dl_CalculMoveDir = ChangeMoveVectorWithCamera;
             dl_sprintApply = SprintApply_Inputable;
             
+            
             dl_moveApply(inputMoveVector);
+            dl_sprintApply(isSprintInput);
         }
 
         private void ChangeDelegate_InputUnable() {
@@ -107,7 +111,7 @@ namespace Script {
         private void MoveApply_Inputable(Vector2 inputVector) {
             moveDir = inputVector;
             isMove = inputVector != Vector2.zero;
-            animController.SetMoveAnimDirection(moveDir);
+            animController.SetMoveDirection(moveDir);
         }
 
         //--------------------------------------------------------------
@@ -150,8 +154,11 @@ namespace Script {
         }
 
         private void Move_Avoid_Backward() {
-            // Debug.Log("Move_Avoid_Backward");
             transform.position -= currentMovingDir.normalized * (avoidSpeed * Time.deltaTime);
+        }
+
+        private void Move_Attack() {
+            transform.position += currentMovingDir.normalized * (attackSpeed * Time.deltaTime);
         }
 
         //--------------------------------------------------------------
@@ -178,14 +185,12 @@ namespace Script {
                 new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z) * moveDirection.y +
                 new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z) * moveDirection.x;
 
-            return LerpMoveDirection(dir, currentMovingDir);
+            return LerpVector(dir, currentMovingDir, turnSpeed);
         }
 
-        private Vector3 LerpMoveDirection(Vector3 newMoveDir, Vector3 currentMoveDir) {
-            // 플레이어 이동 Lerp
-            return (newMoveDir - currentMoveDir).magnitude >= 0.001f ? 
-                Vector3.Lerp(currentMoveDir, newMoveDir, turnSpeed * Time.deltaTime)
-                : newMoveDir;
+        private Vector3 LerpVector(Vector3 current, Vector3 target, float lerpSpeed) {
+            return (target - current).magnitude >= 0.001f ? 
+                Vector3.Lerp(current, target, lerpSpeed * Time.deltaTime) : target;
         }
 
         //--------------------------------------------------------------
@@ -200,7 +205,7 @@ namespace Script {
 
         //==============================================================
         public void Jump() {
-            playerRigidbody.velocity = new Vector3(playerRigidbody.velocity.x, 0, playerRigidbody.velocity.z);
+            playerRigidbody.linearVelocity = new Vector3(playerRigidbody.linearVelocity.x, 0, playerRigidbody.linearVelocity.z);
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
 
             ChangeDelegate_InputUnable();
@@ -293,13 +298,31 @@ namespace Script {
         }
 
         public void Avoid_End() {
-            ChangeDelegate_Inputable();
             dl_moveApply(inputMoveVector);
-            dl_sprintApply(isSprintInput);
+            ChangeDelegate_Inputable();
         }
 
         #endregion
 
+        #region Attack
+        public void NormalAttack_Start() {
+            ChangeDelegate_InputUnable();
+            dl_move = Move_Attack;
+            playerBody.forward = currentMovingDir;
+        }
+        
+        public void StrongAttack_Start() {
+            ChangeDelegate_InputUnable();
+            dl_move = Move_Attack;
+            playerBody.forward = currentMovingDir;
+        }
+
+        public void Attack_End() {
+            ChangeDelegate_Inputable();
+        }
+
+        #endregion
+        
         public void CamLockUpdate(bool locked) {
             isCamLocked = locked;
         }
