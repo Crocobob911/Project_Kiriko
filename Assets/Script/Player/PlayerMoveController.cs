@@ -205,7 +205,7 @@ namespace Script {
 
         //==============================================================
         public void Jump() {
-            playerRigidbody.velocity = new Vector3(playerRigidbody.velocity.x, 0, playerRigidbody.velocity.z);
+            playerRigidbody.linearVelocity = new Vector3(playerRigidbody.linearVelocity.x, 0, playerRigidbody.linearVelocity.z);
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
 
             ChangeDelegate_InputUnable();
