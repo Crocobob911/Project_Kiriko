@@ -12,51 +12,59 @@ namespace Script {
         private readonly int animIsOnAir = Animator.StringToHash("isOnAir");
         private readonly int animAvoid = Animator.StringToHash("avoid");
         private readonly int animKnockBack = Animator.StringToHash("knockBack");
+        private readonly int animNormalAttack = Animator.StringToHash("normalAttack");
+        private readonly int animStrongAttack = Animator.StringToHash("strongAttack");
 
-        [SerializeField]private Animator animator;
+        private Animator animator;
     
-        [SerializeField]private Vector2 currentDirection;
-        [SerializeField]private Vector2 newDirection;
-
+        private Vector2 currentDirection;
+        private Vector2 newDirection;
+    
+        private void Start() {
+            animator = transform.GetChild(1).GetComponent<Animator>();
+            Init();
+            
+            CameraRotateController.Instance.AddMeLockObserver(this);
+        }
+    
         private void Init() {
             currentDirection = Vector2.zero;
             newDirection = Vector2.zero;
         }
-    
-        private void Start() {
-            animator = transform.GetChild(1).GetComponent<Animator>();
-            CameraRotateController.Instance.AddMeLockObserver(this);
-            
-            Init();
-        }
-    
+        
         private void Update() {
-            SetPlayerAnim();
+            ChangeMoveAction();
         }
     
-        private void SetPlayerAnim() {
+        private void ChangeMoveAction() {
             if(newDirection == currentDirection) return;
-        
-            LerpMoveAnimDirection();
-        
-            animator.SetFloat(animMoveForward, currentDirection.y);
-            animator.SetFloat(animMoveRight, currentDirection.x);
+            
+            SetMoveVectorOfAnimator(
+                LerpVector(currentDirection, newDirection));
         }
-    
-        public void SetMoveAnimDirection(Vector2 moveDir) {
+
+        private void SetMoveVectorOfAnimator(Vector2 dir) {
+            animator.SetFloat(animMoveForward, dir.y);
+            animator.SetFloat(animMoveRight, dir.x);
+        }
+
+        private Vector2 LerpVector(Vector2 current, Vector2 target) {
+            return (current - target).magnitude >= 0.01f 
+                ? Vector2.Lerp(current, target, 5f * Time.deltaTime) : target;
+        }
+        
+        /// <summary>
+        /// get moveDirection as a parameter to change the moving animation of player
+        /// </summary>
+        /// <param name="moveDir"></param>
+        public void SetMoveDirection(Vector2 moveDir) {
             newDirection = moveDir;
             animator.SetBool(animIsMove, moveDir != Vector2.zero);
         }
 
-        private void LerpMoveAnimDirection() {
-            currentDirection = (currentDirection - newDirection).magnitude >= 0.01f 
-                ? Vector2.Lerp(currentDirection, newDirection, 5f * Time.deltaTime) 
-                : newDirection;
-        }
-
         public void JumpAnim_Start() {
             animator.SetBool(animIsOnAir, true);
-            SetMoveAnimDirection(Vector2.zero);
+            SetMoveDirection(Vector2.zero);
         
             // 도약 모션 재생 들어가야함.
             // 그 뒤에 체공 모션으로 자연스레 넘어가야함.
@@ -74,13 +82,22 @@ namespace Script {
         }
         
         
-        public void Avoid_Start() {
+        public void AvoidAnim_Start() {
             animator.SetTrigger(animAvoid);
             // 카메라 락온 상태에 따라서 다른 애니메이션 출력해줘야함.
+        }
+
+        public void NormalAttack_Start() {
+            animator.SetTrigger(animNormalAttack);
+        }
+        
+        public void StrongAttack_Start() {
+            animator.SetTrigger(animStrongAttack);
         }
 
         public void CamLockUpdate(bool locked) {
             animator.SetBool(animIsCamLocked, locked);
         }
+
     }
 }

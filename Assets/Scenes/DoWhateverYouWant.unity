@@ -373,7 +373,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2131187804}
         m_TargetAssemblyTypeName: Script.Player, Assembly-CSharp
-        m_MethodName: ActiveAvoid
+        m_MethodName: Avoid_Start
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
