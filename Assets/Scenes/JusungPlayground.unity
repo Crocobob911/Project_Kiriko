@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 10
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -42,8 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
-  m_GIWorkflowMode: 1
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -66,9 +66,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -171,7 +168,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: 0f5866d822b238442b883709dba4e266, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: e00bce09dcd4f2d42ab47a9dede21fcf, type: 2}
     - target: {fileID: 919132149155446097, guid: 0f5866d822b238442b883709dba4e266, type: 3}
@@ -357,7 +354,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: a5bbb99e-e87a-4fa9-bab5-22dfe6e446df
-    m_ActionName: Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
+    m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2131187804}
@@ -373,7 +370,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 77b639d3-3085-48ba-b4e1-111a68291b16
-    m_ActionName: Player/Jump[/Keyboard/space]
+    m_ActionName: 'Player/Jump[/Keyboard/space]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 442407697}
@@ -389,7 +386,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 8bcd72e2-62fc-451b-bdcd-cf3a8f42aecf
-    m_ActionName: Player/CamLock[/Keyboard/f1]
+    m_ActionName: 'Player/CamLock[/Keyboard/f1]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1986192455}
@@ -405,7 +402,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 39271ad8-a847-4345-b569-9cbbd9191018
-    m_ActionName: Player/CamZoom[/Mouse/scroll/y]
+    m_ActionName: 'Player/CamZoom[/Mouse/scroll/y]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 442407697}
@@ -421,7 +418,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: b70cd22e-3eec-48bb-90fd-4d257bc5a089
-    m_ActionName: Player/CamMove[/Mouse/delta]
+    m_ActionName: 'Player/CamMove[/Mouse/delta]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2131187803}
@@ -442,7 +439,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2131187804}
         m_TargetAssemblyTypeName: Script.Player, Assembly-CSharp
-        m_MethodName: ActiveAvoid
+        m_MethodName: Avoid_Start
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -454,6 +451,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: c041530c-fcf2-4432-ac54-bff74be4374c
     m_ActionName: Player/New action
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2131187794}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: c0e1df97-c6ef-41ca-a851-d25ab5563a44
+    m_ActionName: 'Player/Attack[/Mouse/leftButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -573,6 +586,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -789,9 +805,8 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
   m_Enabled: 1
-  serializedVersion: 10
+  serializedVersion: 11
   m_Type: 1
-  m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
   m_Range: 10
@@ -841,8 +856,12 @@ Light:
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!4 &705507995
 Transform:
   m_ObjectHideFlags: 0
@@ -1476,6 +1495,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1652,9 +1674,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 259795544e8c46040ad86e9052f8b2ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
-  currentDirection: {x: 0, y: 0}
-  newDirection: {x: 0, y: 0}
 --- !u!114 &2131187803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1677,6 +1696,7 @@ MonoBehaviour:
   avoidInputUnableTime: 0.6
   knockBackInputUnableTime: 0.6
   jumpForce: 5
+  attackSpeed: 1
 --- !u!114 &2131187804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1691,9 +1711,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animController: {fileID: 2131187801}
   moveController: {fileID: 2131187803}
+  attackManager: {fileID: 0}
   avoidCollider: {fileID: 966488873}
+  weaponCollider: {fileID: 0}
   playerMaxHP: 300
   playerMaxStamina: 100
+  attackDamage: 0
   avoidStamina: 10
   jumpStamina: 10
 --- !u!1001 &1025817842909334761
