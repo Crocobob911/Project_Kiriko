@@ -1,0 +1,54 @@
+{
+    "name": "PinkDDUK_InputActions",
+    "maps": [
+        {
+            "name": "PinkDDUK",
+            "id": "2c5d3d85-4911-4f34-bdf5-5e372a1b6a8b",
+            "actions": [
+                {
+                    "name": "Walk",
+                    "type": "Button",
+                    "id": "f5028573-4180-4837-87a7-ee92972f3c76",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Idle",
+                    "type": "Button",
+                    "id": "282447a2-31e6-4102-8c24-e4aac2beaa9a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ffca9d08-7165-455e-94aa-a3e5646cbf30",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Walk",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b70f7d48-d746-4c79-acb0-fa97145bf434",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Idle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
