@@ -1,7 +1,10 @@
 using UnityEngine;
 
 namespace Script {
-    public class TempWeapon : MonoBehaviour {
+    /// <summary>
+/// 플레이어에게 닿으면 데미지를 주는 간단한 테스트용 임시 무기입니다.
+/// </summary>
+public class TempWeapon : MonoBehaviour {
         public int speed;
         
         private void Update() {

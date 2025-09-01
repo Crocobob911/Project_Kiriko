@@ -2,7 +2,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Script {
-    public class PlayerMoveController : MonoBehaviour, IValueModifierObserver, ICameraLockObserver {
+    /// <summary>
+/// 플레이어의 '움직임'에 대한 모든 것을 책임집니다.
+/// 입력에 따른 실제 이동, 달리기, 점프, 회피, 공격 중 이동, 넉백 등을 처리합니다.
+/// </summary>
+public class PlayerMoveController : MonoBehaviour, IValueModifierObserver, ICameraLockObserver {
         private void Awake() {
             // cameraRoot = gameObject.transform.GetChild(0).GetComponent<Transform>();
             // playerBody = gameObject.transform.GetChild(1).GetComponent<Transform>();
@@ -12,7 +16,7 @@ namespace Script {
 
         private void Start() {
             // Debug.Log("Start");
-            ChangeDelegate_Inputable();
+            ChangeDelegate_AbleToInput();
             
             CameraRotateController.Instance.AddMeLockObserver(this);
 #if UNITY_EDITOR
@@ -67,7 +71,7 @@ namespace Script {
         #region Delegates Switch
 
         //==============================================================
-        private void ChangeDelegate_Inputable() {
+        private void ChangeDelegate_AbleToInput() {
             // Debug.Log("Inputable");
             dl_moveApply = MoveApply_Inputable;
             dl_move = Move_Idle;
@@ -79,7 +83,7 @@ namespace Script {
             dl_sprintApply(isSprintInput);
         }
 
-        private void ChangeDelegate_InputUnable() {
+        private void ChangeDelegate_DisableToInput() {
             // Debug.Log("Input Unable");
             dl_moveApply = vector => { };
             dl_CalculMoveDir = vector => currentMovingDir;
@@ -109,6 +113,7 @@ namespace Script {
         private MoveApply dl_moveApply;
 
         private void MoveApply_Inputable(Vector2 inputVector) {
+            
             moveDir = inputVector;
             isMove = inputVector != Vector2.zero;
             animController.SetMoveDirection(moveDir);
@@ -185,7 +190,7 @@ namespace Script {
                 new Vector3(cameraRoot.forward.x, 0f, cameraRoot.forward.z) * moveDirection.y +
                 new Vector3(cameraRoot.right.x, 0f, cameraRoot.right.z) * moveDirection.x;
 
-            return LerpVector(dir, currentMovingDir, turnSpeed);
+            return LerpVector(currentMovingDir,dir,  turnSpeed);
         }
 
         private Vector3 LerpVector(Vector3 current, Vector3 target, float lerpSpeed) {
@@ -208,14 +213,14 @@ namespace Script {
             playerRigidbody.linearVelocity = new Vector3(playerRigidbody.linearVelocity.x, 0, playerRigidbody.linearVelocity.z);
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
 
-            ChangeDelegate_InputUnable();
+            ChangeDelegate_DisableToInput();
             // 도약 모션 들어가야함.
             // 체공 모션이 들어가야함.
         }
 
         public void Jump_End() {
             Debug.Log("Jump End");
-            ChangeDelegate_Inputable();
+            ChangeDelegate_AbleToInput();
             dl_moveApply(inputMoveVector);
             dl_sprintApply(isSprintInput);
         }
@@ -271,7 +276,7 @@ namespace Script {
         #region KnockBack
 
         public void KnockBack_Start() {
-            ChangeDelegate_InputUnable();
+            ChangeDelegate_DisableToInput();
             dl_move = Move_KnockBack;
             if(IsInvoking(nameof(KnockBack_End))) CancelInvoke(nameof(KnockBack_End));
             Invoke(nameof(KnockBack_End), knockBackInputUnableTime);
@@ -281,7 +286,7 @@ namespace Script {
 
         public void KnockBack_End() {
             Debug.Log("KnockBack End");
-            ChangeDelegate_Inputable();
+            ChangeDelegate_AbleToInput();
         }
 
         #endregion
@@ -289,7 +294,7 @@ namespace Script {
         #region Avoid
 
         public void Avoid_Start() {
-            ChangeDelegate_InputUnable();
+            ChangeDelegate_DisableToInput();
             
             if (inputMoveVector != Vector2.zero) dl_move = Move_Avoid;
             else dl_move = Move_Avoid_Backward;
@@ -299,26 +304,26 @@ namespace Script {
 
         public void Avoid_End() {
             dl_moveApply(inputMoveVector);
-            ChangeDelegate_Inputable();
+            ChangeDelegate_AbleToInput();
         }
 
         #endregion
 
         #region Attack
         public void NormalAttack_Start() {
-            ChangeDelegate_InputUnable();
+            ChangeDelegate_DisableToInput();
             dl_move = Move_Attack;
             playerBody.forward = currentMovingDir;
         }
         
         public void StrongAttack_Start() {
-            ChangeDelegate_InputUnable();
+            ChangeDelegate_DisableToInput();
             dl_move = Move_Attack;
             playerBody.forward = currentMovingDir;
         }
 
         public void Attack_End() {
-            ChangeDelegate_Inputable();
+            ChangeDelegate_AbleToInput();
         }
 
         #endregion

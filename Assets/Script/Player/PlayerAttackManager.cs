@@ -5,16 +5,18 @@ using UnityEngine.Serialization;
 
 
 namespace Script {
-
-    
-    public class PlayerAttackManager : MonoBehaviour {
-
         public enum AttackType {
             Normal = 0,
             Strong = 1,
             Ultimate = 2
         }
-        
+    
+/// <summary>
+/// 플레이어의 '공격 데미지 계산'을 전담합니다.
+/// 공격 종류, 크리티컬 여부 등을 바탕으로 최종 데미지를 계산하는 공식을 관리합니다.
+/// </summary>
+    public class PlayerAttackManager : MonoBehaviour {
+    
         /// <summary>
         /// 플레이어의 기본 공격력
         /// </summary>
@@ -31,7 +33,7 @@ namespace Script {
         /// <param name="isCritical"></param>
         /// <param name="damageRatio_item"></param>
         /// <param name="damageRatio_Additional"></param>
-        /// <returns></returns>
+        /// <returns>(int) 최종 데미지 값</returns>
         public int CalculateDamage(AttackType type, bool isCritical, float damageRatio_item = 1f) {
             var damageRatio_critical = isCritical ? 1.2f : 1f;
             return (int)(DamageRatio_Type(type)
@@ -41,10 +43,10 @@ namespace Script {
         }
 
         /// <summary>
-        /// 플레이어의 공격 종류에 따른 데미지 계산
+        /// 플레이어의 공격 종류에 따른 데미지 계수 반환
         /// </summary>
         /// <param name="type"></param>
-        /// <returns></returns>
+        /// <returns>(int) 데미지 계수</returns>
         private int DamageRatio_Type(AttackType type) {
             return type switch {
                 AttackType.Normal => normalAttackDamage,

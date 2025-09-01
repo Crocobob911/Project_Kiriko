@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Script {
+    /// <summary>
+    /// 플레이어의 전반적인 상태와 행동을 총괄하는 메인 클래스입니다.
+    /// 각종 컨트롤러들을 조율하고 플레이어의 핵심 상태(HP, 스태미나, 행동 가능 여부)를 관리합니다.
+    /// </summary>
     public class Player : CombatObject, IAttackableObject {
         [SerializeField] private PlayerAnimController animController;
         [SerializeField] private PlayerMoveController moveController;
@@ -9,7 +13,7 @@ namespace Script {
         [SerializeField] private GameObject avoidCollider;
         [SerializeField] private GameObject weaponCollider;
 
-        private bool duringBehavior;
+        private bool isDuringBehavior;
         private bool isAvoiding;
         private bool isJumping;
 
@@ -35,7 +39,7 @@ namespace Script {
             InitStamina(playerMaxStamina);
             isAvoiding = false;
             isJumping = false;
-            duringBehavior = false;
+            isDuringBehavior = false;
         }
 
         private void InitHp(int _playerMaxHp) {
@@ -51,9 +55,9 @@ namespace Script {
         #region Attack
 
         public void NormalAttack_Start() {
-            if(duringBehavior) return;
+            if(isDuringBehavior) return;
             
-            duringBehavior = true;
+            isDuringBehavior = true;
             weaponCollider.SetActive(true);
             moveController.NormalAttack_Start();
             animController.NormalAttack_Start();
@@ -62,9 +66,9 @@ namespace Script {
         }
 
         public void StrongAttack_Start() {
-            if(duringBehavior) return;
+            if(isDuringBehavior) return;
             
-            duringBehavior = true;
+            isDuringBehavior = true;
             weaponCollider.SetActive(true);
             moveController.StrongAttack_Start();
             animController.StrongAttack_Start();
@@ -74,7 +78,7 @@ namespace Script {
 
         public void Attack_Normal(Enemy target) {
             target.Attacked(attackManager.
-                CalculateDamage(PlayerAttackManager.AttackType.Normal, false));
+                CalculateDamage(AttackType.Normal, false));
         }
 
         public void Attack_Strong(Enemy target) {
@@ -82,7 +86,7 @@ namespace Script {
         }
 
         public void Attack_End() {
-            duringBehavior = false;
+            isDuringBehavior = false;
             weaponCollider.SetActive(false);
             moveController.Attack_End();
         }
@@ -100,10 +104,10 @@ namespace Script {
 
         //==============================================================
         public void Avoid_Start(InputAction.CallbackContext context) {
-            if (!context.started || duringBehavior) return;
+            if (!context.started || isDuringBehavior) return;
 
             isAvoiding = true;
-            duringBehavior = true;
+            isDuringBehavior = true;
             Stamina -= avoidStamina;
 
             AvoidColliderOnReady();
@@ -118,13 +122,13 @@ namespace Script {
 
         public void Avoid_Success(float time) {
             isAvoiding = false;
-            duringBehavior = false;
+            isDuringBehavior = false;
             Debug.Log("[Player] Success Avoid. Time : " + time + "s.");
         }
 
         public void Avoid_Fail() {
             isAvoiding = false;
-            duringBehavior = false;
+            isDuringBehavior = false;
             Debug.Log("[Player] Avoid Failed.");
         }
 
@@ -136,10 +140,10 @@ namespace Script {
 
         //==============================================================
         public void Jump(InputAction.CallbackContext context) {
-            if (!context.started || duringBehavior) return;
+            if (!context.started || isDuringBehavior) return;
 
             isJumping = true;
-            duringBehavior = true;
+            isDuringBehavior = true;
             Stamina -= jumpStamina;
             moveController.Jump();
             animController.JumpAnim_Start();
@@ -147,7 +151,7 @@ namespace Script {
 
         public void Jump_End() {
             isJumping = false;
-            duringBehavior = false;
+            isDuringBehavior = false;
             moveController.Jump_End();
             animController.JumpAnim_End();
         }
