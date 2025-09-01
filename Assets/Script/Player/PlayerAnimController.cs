@@ -1,7 +1,11 @@
 using UnityEngine;
 
 namespace Script {
-    public class PlayerAnimController : MonoBehaviour, ICameraLockObserver
+    /// <summary>
+/// 플레이어의 '애니메이션'을 모두 책임집니다.
+/// 다른 스크립트로부터 명령을 받아 이동, 공격, 회피 등 상황에 맞는 애니메이션을 재생합니다.
+/// </summary>
+public class PlayerAnimController : MonoBehaviour, ICameraLockObserver
     {
         // 애니메이터 매개변수들
         // Animator.StringToHash()로 그 값들을 미리 가져와 갖고있음으로써, 연산 줄여줌.

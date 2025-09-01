@@ -1,7 +1,11 @@
 using UnityEngine;
 
 namespace Script {
-    public class AvoidCollider : MonoBehaviour, IAttackableObject {
+    /// <summary>
+/// '성공적인 회피(패링)' 판정을 위한 특수 콜라이더입니다.
+/// 회피 시도 시 짧은 시간 동안 활성화되며, 이 때 피격되면 '회피 성공'으로 처리됩니다.
+/// </summary>
+public class AvoidCollider : MonoBehaviour, IAttackableObject {
         [SerializeField] private Player player;
 
         private float time = 0;

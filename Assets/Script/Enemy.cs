@@ -28,7 +28,10 @@ namespace Script
         
     }
 
-    public interface IAttackableObject {
+    /// <summary>
+/// 공격 가능한 모든 객체를 위한 인터페이스입니다.
+/// </summary>
+public interface IAttackableObject {
         public void Attacked(int damage);
     }
 }

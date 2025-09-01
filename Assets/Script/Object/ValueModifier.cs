@@ -69,7 +69,9 @@ namespace Script {
         public void ValueModifierUpdated();
     }
 
-//Custom Editor
+    /// <summary>
+    /// [Editor-Only] ValueModifier 스크립트가 Unity 인스펙터 창에 표시되는 방식을 커스터마이징합니다.
+    /// </summary>
     [CustomEditor(typeof(ValueModifier))]
     [CanEditMultipleObjects]
     public class ValueModifierEditor : Editor {
@@ -123,5 +125,7 @@ namespace Script {
             GUILayout.EndVertical();
         }
     }
+
+    //Custom Editor
 #endif
 }

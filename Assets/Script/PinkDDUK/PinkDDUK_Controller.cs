@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// 'PinkDDUK' 모델의 애니메이션을 테스트하기 위한 컨트롤러입니다.
+/// </summary>
 public class PinkDDUK_Controller : MonoBehaviour
 {
     [SerializeField] private Animator animator;
